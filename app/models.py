@@ -32,28 +32,10 @@ class User(db.Model, UserMixin):
         return self.name
 
 
-class UserModelView(ModelView):
-    column_display_pk = True
-
-    def is_accessible(self):
-        return current_user.is_authenticated
-
-
-class RoleModelView(ModelView):
-    column_display_pk = True
-    can_create = False
-
-    def is_accessible(self):
-        return current_user.is_authenticated
-
-
 class AboutUsView(BaseView):
     @expose("/")
     def index(self):
         return self.render("admin/about-us.html")
-
-    # def is_accessible(self):
-    #     return current_user.is_authenticated
 
 
 class LogoutView(BaseView):
@@ -75,8 +57,26 @@ def hash_user_password(target, value, oldvalue, initiator):
     return value
 
 
-admin.add_view(RoleModelView(Role, db.session))
-admin.add_view(UserModelView(User, db.session))
+# Customized admin interface
+class CustomView(ModelView):
+    list_template = '/admin/list.html'
+    create_template = '/admin/create.html'
+    edit_template = '/admin/edit.html'
+    column_display_pk = True
+    form_excluded_columns = ['users',]
+
+    def is_accessible(self):
+        return current_user.is_authenticated
+
+
+class UserAdmin(CustomView):
+    column_searchable_list = ('name',)
+    column_filters = ('name', 'role_id')
+    page_size = 10
+
+
+admin.add_view(CustomView(Role, db.session))
+admin.add_view(UserAdmin(User, db.session))
 admin.add_view(AboutUsView(name="About Us"))
 admin.add_view(LogoutView(name="Logout"))
 

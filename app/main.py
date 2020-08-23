@@ -1,5 +1,6 @@
 from flask import render_template, redirect, request
 from flask_login import login_user, login_required
+
 from app import app, login
 from app.models import *
 import hashlib
@@ -22,8 +23,7 @@ def login_admin():
             login_user(user=user)
             return redirect("/admin")
         else:
-            err_msg = "Dang nhap khong thanh cong"
-            # return render_template('admin/index.html', err_msg=err_msg)
+            return render_template("admin/login-failed.html")
     return redirect("/admin")
 
 

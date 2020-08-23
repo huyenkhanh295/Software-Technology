@@ -1,10 +1,16 @@
-{% extends "admin/master.html"  %}
-
+{% extends 'admin/master.html' %}
 {% block body %}
+{{ super() }}
+<div class="row">
+    <h1>Chào mừng bạn đã đến với trang quản trị người dùng</h1>
     {% if current_user.is_authenticated %}
-    <h1>WELCOME TO ADMIN PAGES</h1>
-    <h1>{{ current_user.name }}</h1>
+    <h1>Bạn đã đăng nhập với tài khoản: {{ current_user.name }}</h1>
     {% else %}
+        <h3>Xin vui lòng đăng nhập để sử dụng phần mềm</h3>
         {% include "admin/login.html" %}
     {% endif %}
-{% endblock %}
+
+    <a class="btn btn-primary" href="/"><i class="glyphicon glyphicon-chevron-left"></i>Trở về giao diện chính</a>
+</div>
+{% endblock body %}
+
