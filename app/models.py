@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+import hashlib
+
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, event
 from sqlalchemy.orm import relationship
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
@@ -30,6 +32,13 @@ class User(db.Model, UserMixin):
         return self.name
 
 
+class UserModelView(ModelView):
+    column_display_pk = True
+
+    def is_accessible(self):
+        return current_user.is_authenticated
+
+
 class RoleModelView(ModelView):
     column_display_pk = True
     can_create = False
@@ -43,8 +52,8 @@ class AboutUsView(BaseView):
     def index(self):
         return self.render("admin/about-us.html")
 
-    def is_accessible(self):
-        return current_user.is_authenticated
+    # def is_accessible(self):
+    #     return current_user.is_authenticated
 
 
 class LogoutView(BaseView):
@@ -58,8 +67,16 @@ class LogoutView(BaseView):
         return current_user.is_authenticated
 
 
+@event.listens_for(User.password, 'set', retval=True)
+def hash_user_password(target, value, oldvalue, initiator):
+    if value != oldvalue:
+        value = str(hashlib.md5(value.strip().encode("utf-8")).hexdigest())
+        return value
+    return value
+
+
 admin.add_view(RoleModelView(Role, db.session))
-admin.add_view(ModelView(User, db.session))
+admin.add_view(UserModelView(User, db.session))
 admin.add_view(AboutUsView(name="About Us"))
 admin.add_view(LogoutView(name="Logout"))
 

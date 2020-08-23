@@ -20,6 +20,10 @@ def login_admin():
                                  User.password == password).first()
         if user:
             login_user(user=user)
+            return redirect("/admin")
+        else:
+            err_msg = "Dang nhap khong thanh cong"
+            # return render_template('admin/index.html', err_msg=err_msg)
     return redirect("/admin")
 
 
