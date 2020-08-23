@@ -1,0 +1,12 @@
+<h1 class="text-center text-info">Login</h1>
+<form method="post" action="{{ url_for('login_admin')}}">
+    <div class="form-group">
+        <input type="text" name="username" class="form-control" placeholder="Username..." />
+    </div>
+    <div class="form-group">
+        <input type="password" name="password" class="form-control" placeholder="Password..."/>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="login" class="btn btn-danger" />
+    </div>
+</form>
