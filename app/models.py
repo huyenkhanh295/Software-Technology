@@ -63,7 +63,7 @@ class CustomView(ModelView):
     create_template = '/admin/create.html'
     edit_template = '/admin/edit.html'
     column_display_pk = True
-    form_excluded_columns = ['users',]
+    form_excluded_columns = ['users', ]
 
     def is_accessible(self):
         return current_user.is_authenticated
@@ -75,7 +75,13 @@ class UserAdmin(CustomView):
     page_size = 10
 
 
-admin.add_view(CustomView(Role, db.session))
+class RoleView(CustomView):
+    can_create = False
+    can_edit = False
+    can_delete = False
+
+
+admin.add_view(RoleView(Role, db.session))
 admin.add_view(UserAdmin(User, db.session))
 admin.add_view(AboutUsView(name="About Us"))
 admin.add_view(LogoutView(name="Logout"))

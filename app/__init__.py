@@ -10,7 +10,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
 db = SQLAlchemy(app=app)
 
-admin = Admin(app=app, name="QUẢN LÍ NGƯỜI DÙNG HỆ THỐNG", base_template='/admin/layout-admin.html', template_mode="bootstrap3")
+admin = Admin(app=app, name="QUẢN LÍ NGƯỜI DÙNG HỆ THỐNG",
+              base_template='/admin/layout-admin.html', template_mode="bootstrap3")
 
 login = LoginManager(app)
 
