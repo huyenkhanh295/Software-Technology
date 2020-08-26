@@ -1,11 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!------ Include the above in your HEAD tag ---------->
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/404.css') }}">
 </head>
-<body>
-<h1>Login failed!</h1>
-<h3><a href="{{ url_for('admin.index') }}">Dang nhap lai</a></h3>
-</body>
-</html>
+<div class="container error-container">
+	<div class="row  d-flex align-items-center justify-content-center">
+		<div class="col-md-12 text-center">
+			<h1 class="big-text">Oops!</h1>
+			<h2 class="small-text">101 - Wrong UserName Or PassWord</h2>
+            <br class="my-1">
+		</div>
+		<div class="col-md-6  text-center">
+			<p>The page you are trying to login might have been deny your username and passwork, try again in a few hour.</p>
+			<hr class="my-4">
+            <a href="{{ url_for('admin.index') }}"class="button button-dark-blue iq-mt-15 text-center">Login Again</a>
+            <hr class="my-4">
+
+		</div>
+
+	</div>
+
+
+</div>
+

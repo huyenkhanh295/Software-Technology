@@ -2,15 +2,15 @@
 {% block body %}
 {{ super() }}
 <div class="row">
-    <h1>Chào mừng bạn đã đến với trang quản trị người dùng</h1>
+    <h2 class="card-title text-center">Chào mừng bạn đã đến với quản lí sổ tiết kiệm</h2>
     {% if current_user.is_authenticated %}
-    <h1>Bạn đã đăng nhập với tài khoản: {{ current_user.name }}</h1>
+    <h2>Bạn đã đăng nhập với tài khoản: {{ current_user.name }}</h2>
     {% else %}
-        <h3>Xin vui lòng đăng nhập để sử dụng phần mềm</h3>
+        <h3></h3>
         {% include "admin/login.html" %}
     {% endif %}
 
-    <a class="btn btn-primary" href="/"><i class="glyphicon glyphicon-chevron-left"></i>Trở về giao diện chính</a>
+    <a class="btn btn-primary" href="/"><i class="glyphicon glyphicon-chevron-left"></i>Trở về</a>
 </div>
 {% endblock body %}
 

@@ -1,24 +1,25 @@
-<h1 class="text-center">LOGIN</h1>
+
+<h2 class="text-center">Đăng Nhập Ngay</h2>
     {% if err_msg %}
     <div class="alert alert-danger">
         {{ err_msg}}
     </div>
     {% endif %}
     <form method="post" action="{{ url_for('login_admin')}}">
-        <div class="form-group">
-            <div class="col-md-12">
+            <div class="form-label-group">
                 <label>Username:</label>
-                <input type="text" name="username" class="form-control" placeholder="Enter Username..." />
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-md-12">
+                <input type="text" name="username" class="form-control" placeholder="Enter Username..." required autofocus/>
+              </div>
+            <div class="form-label-group">
             <label>Password:</label>
-                <input type="password" name="password" class="form-control" placeholder="Enter Password..."/>
+                <input type="password" name="password" class="form-control" placeholder="Enter Password..." required/>
             </div>
-        </div>
-            <br>
-        <div class="form-group">
-            <input type="submit" value="Login" class="btn btn-info" />
-        </div>
+        <hr class="my-1">
+        <div class="custom-control custom-checkbox mb-3">
+                <input type="checkbox" class="custom-control-input" id="customCheck1">
+                <label class="custom-control-label" for="customCheck1">Nhớ Mật Khẩu</label>
+              </div>
+        <hr class="my-4">
+        <button value="Login" class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Sign in</button>
+        <hr class="my-4">
     </form>

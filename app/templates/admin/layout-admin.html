@@ -7,15 +7,18 @@
 {% endblock %}
 
 {% block page_body %}
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
 <div class="container-fluid">
   <div class="row">
-    <div class="col-md-2" role="navigation">
+    <div class="col-md-1" style="width: 9.499999995%" role="navigation">
       <ul class="nav nav-pills nav-stacked">
 	    {{ layout.menu() }}
 	    {{ layout.menu_links() }}
       </ul>
     </div>
-    <div class="col-md-9">
+    <div class="col-md-10">
       <div id="content" class="row">
     	{% block brand %}
     	<h2 id="brand">{{ admin_view.name|capitalize }}</h2>
