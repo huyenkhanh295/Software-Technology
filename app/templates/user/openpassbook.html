@@ -1,0 +1,8 @@
+{% extends "user/layout.html" %}
+{% block content %}
+    {% if current_user.is_authenticated %}
+        <h1>asklfhasuiyfuias uibcbysajhcsgdh</h1>
+    {% else %}
+    <h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
+    {% endif %}
+{% endblock content %}

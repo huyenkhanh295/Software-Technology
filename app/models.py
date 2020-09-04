@@ -1,6 +1,6 @@
 import hashlib
 
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, event
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, event, DateTime, Float
 from sqlalchemy.orm import relationship
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
@@ -30,6 +30,33 @@ class User(db.Model, UserMixin):
 
     def __str__(self):
         return self.name
+
+
+class PassbookRole(db.Model):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(50), nullable=False)
+    interest_rate = Column(Float, nullable=False)
+    passbooks = relationship('Passbook', backref='PassbookRole', lazy=True)
+
+    # lay chuoi dai dien: hien thi tren bang user thay cho cot role id
+
+    def __str__(self):
+        return self.name
+
+
+class Passbook(db.Model, UserMixin):
+    __tablename__ = "passbook"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    customer_name = Column(String(50), nullable=False)
+    address = Column(String(50), nullable=False)
+    date_create = Column(DateTime(50), nullable=False)
+    money = Column(Float, nullable=False)
+    phone_number = Column(Integer, nullable=False)
+    id_number = Column(Integer, nullable=False)
+    passbook_role_id = Column(Integer, ForeignKey(PassbookRole.id), nullable=False)
+
+    def __str__(self):
+        return self.customer_name
 
 
 class AboutUsView(BaseView):
@@ -81,10 +108,26 @@ class RoleView(CustomView):
     can_delete = False
 
 
+class PassbookView(ModelView):
+    can_create = True
+    can_edit = True
+    can_delete = True
+    page_size = 10
+
+
+class PassbookRoleView(ModelView):
+    can_create = True
+    can_edit = True
+    can_delete = True
+    page_size = 10
+
+
 admin.add_view(RoleView(Role, db.session))
 admin.add_view(UserAdmin(User, db.session))
 admin.add_view(AboutUsView(name="About Us"))
 admin.add_view(LogoutView(name="Logout"))
+admin.add_view(PassbookView(Passbook, db.session))
+admin.add_view(PassbookRoleView(PassbookRole, db.session))
 
 if __name__ == "__main__":
     db.create_all()

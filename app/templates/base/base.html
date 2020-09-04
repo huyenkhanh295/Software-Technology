@@ -91,7 +91,8 @@
         </div>
         <ul class="timeline">
             <li>
-                <div class="timeline-image"><img class="rounded-circle img-fluid" src="{{ url_for('static', filename='images/timeline_1.png')}}" alt=""/>
+                <div class="timeline-image"><img class="rounded-circle img-fluid"
+                                                 src="{{ url_for('static', filename='images/timeline_1.png')}}" alt=""/>
                 </div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
@@ -103,7 +104,8 @@
                 </div>
             </li>
             <li class="timeline-inverted">
-                <div class="timeline-image"><img class="rounded-circle img-fluid" src="{{ url_for('static', filename='images/timeline_2.jpg')}}" alt=""/>
+                <div class="timeline-image"><img class="rounded-circle img-fluid"
+                                                 src="{{ url_for('static', filename='images/timeline_2.jpg')}}" alt=""/>
                 </div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
@@ -116,7 +118,8 @@
                 </div>
             </li>
             <li>
-                <div class="timeline-image"><img class="rounded-circle img-fluid" src="{{ url_for('static', filename='images/timeline_3.jpg')}}" alt=""/>
+                <div class="timeline-image"><img class="rounded-circle img-fluid"
+                                                 src="{{ url_for('static', filename='images/timeline_3.jpg')}}" alt=""/>
                 </div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
@@ -129,7 +132,8 @@
                 </div>
             </li>
             <li class="timeline-inverted">
-                <div class="timeline-image"><img class="rounded-circle img-fluid" src="{{ url_for('static', filename='images/timeline_4.jpg')}}" alt=""/>
+                <div class="timeline-image"><img class="rounded-circle img-fluid"
+                                                 src="{{ url_for('static', filename='images/timeline_4.jpg')}}" alt=""/>
                 </div>
                 <div class="timeline-panel">
                     <div class="timeline-heading">
@@ -165,7 +169,8 @@
         <div class="row">
             <div class="col-lg-6">
                 <div class="team-member">
-                    <img class="mx-auto rounded-circle" src="{{ url_for('static', filename='images/team/1.jpg')}}" alt=""/>
+                    <img class="mx-auto rounded-circle" src="{{ url_for('static', filename='images/team/1.jpg')}}"
+                         alt=""/>
                     <h4>Võ Phạm Huyền Khanh</h4>
                     <p class="text-muted">Trưởng Dự Án</p>
                     <a class="btn btn-dark btn-social mx-2" href="#!"><i class="fab fa-twitter"></i></a>
@@ -175,7 +180,8 @@
             </div>
             <div class="col-lg-6">
                 <div class="team-member">
-                    <img class="mx-auto rounded-circle" src="{{ url_for('static', filename='images/team/2.jpg')}}" alt=""/>
+                    <img class="mx-auto rounded-circle" src="{{ url_for('static', filename='images/team/2.jpg')}}"
+                         alt=""/>
                     <h4>Bùi Đức Tiến</h4>
                     <p class="text-muted">Nhân Viên Quèn</p>
                     <a class="btn btn-dark btn-social mx-2" href="#!"><i class="fab fa-twitter"></i></a>
@@ -201,20 +207,32 @@
             <div class="row align-items-stretch mb-5">
                 <div class="col-md-12">
                     <div class="form-group">
-                        <input class="form-control" id="name" type="text" placeholder="Tên tài khoản..." required/>
+                        <p></p>
+                        <p></p>
                         <p class="help-block text-danger"></p>
                     </div>
                     <div class="form-group">
-                        <input class="form-control" id="pass" type="email" placeholder="Mật khẩu... *" required/>
+                        <p></p>
+                        <p></p>
+                        <p class="help-block text-danger"></p>
+                    </div>
+                    <div class="text-center">
+                        <div id="success"></div>
+                        <a href="/user" class="btn btn-primary btn-xl text-uppercase" id="sendMessageButton" type="submit">
+                            Đăng Nhập Nào
+                        </a>
+                    </div>
+                    <div class="form-group">
+                        <p></p>
+                        <p></p>
+                        <p class="help-block text-danger"></p>
+                    </div>
+                    <div class="form-group">
+                        <p></p>
+                        <p></p>
                         <p class="help-block text-danger"></p>
                     </div>
                 </div>
-            </div>
-            <div class="text-center">
-                <div id="success"></div>
-                <button class="btn btn-primary btn-xl text-uppercase" id="sendMessageButton" type="submit">
-                    Đăng Nhập
-                </button>
             </div>
         </form>
     </div>
