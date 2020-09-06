@@ -1,0 +1,45 @@
+{% extends "user/layout.html" %}
+{% block content %}
+{% if current_user.is_authenticated %}
+<div class="content-section">
+    <h3>Thêm sổ tiết kiệm</h3>
+    <form class="form-group" method="POST">
+        <div class="row">
+            <p class='text-muted col-md-12'>Khi bạn ấn nút "<a href="#">tạo</a>" thì đồng nghĩa với việc bạn đã chấp
+                nhận <a href="{{url_for('term')}}">Điều Khoản</a> của chúng tôi
+            <ul class="list-group col-md-1"></ul>
+            <ul class="list-group col-md-4">
+                <li class="list-group-item"></li>
+                <li class="list-group-item"><label class="">Tên khách hàng</label></li>
+                <li class="list-group-item"><label class="">Số tiền</label></li>
+                <li class="list-group-item"><label class="">Địa chỉ</label></li>
+                <li class="list-group-item"><label class="">Số điện thoại</label></li>
+                <li class="list-group-item"><label class="">Số chứng minh nhân dân</label></li>
+                <li class="list-group-item"><label class="">Loại sổ</label></li>
+                <li class="list-group-item"></li>
+                <hr>
+            </ul>
+            <ul class="list-group col-md-6">
+                <li class="list-group-item"></li>
+                <li class="list-group-item"><input class="col-md-12" type="text" name="name_cus" required></li>
+                <li class="list-group-item"><input class="col-md-12" type="number" name="money_cus" required></li>
+                <li class="list-group-item"><input class="col-md-12" type="text" name="address_cus" required></li>
+                <li class="list-group-item"><input class="col-md-12" type="number" name="mobile_cus" required></li>
+                <li class="list-group-item"><input class="col-md-12" type="number" name="cmnd_cus" required></li>
+                <li class="list-group-item"><select class="col-md-12" name="role">
+                    <option value="2">6 Tháng</option>
+                    <option value="1">3 Tháng</option>
+                    <option value="3" selected>Không kì hạn</option>
+                </select></li>
+                <li class="list-group-item"></li>
+            </ul>
+        </div>
+        <input class="btn btn-outline-info col-md-3 " type="submit" id="submit"
+               value="Thêm sổ tiết kiệm">
+        </p>
+    </form>
+</div>
+{% else %}
+<h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
+{% endif %}
+{% endblock content %}

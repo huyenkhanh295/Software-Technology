@@ -1,8 +1,29 @@
 {% extends "user/layout.html" %}
 {% block content %}
-    {% if current_user.is_authenticated %}
-        <h1>asklfhasuiyfuias uibcbysajhcsgdh</h1>
-    {% else %}
-    <h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
-    {% endif %}
+{% if current_user.is_authenticated %}
+{% if passbooks %}
+{% for p in passbooks %}
+<article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <a class="mr-2" href="#">Số Cmnd: {{ p.id_number }}</a>
+            <small class="text-muted">Số điện thoại khách hàng: {{ p.phone_number }}</small>
+        </div>
+        <h3 class="article-content">Tên khách hàng: {{ p.customer_name }}</h3>
+        {% for x in pass_role %}
+        {% if x.id == p.passbook_role_id %}
+        <p class="article-title">Loại sổ: {{ x.name }} và lãi suất: {{ x.interest_rate }}</p>
+        {% endif %}
+        {% endfor %}
+        <p class="article-title">Số tiền hiện tại: {{ p.money }}đ</p>
+        <hr>
+        <p class="article-content">Địa chỉ: {{ p.address }}</p>
+    </div>
+    <small class="text-muted">Ngày tạo: {{ p.date_create }}</small>
+</article>
+{% endfor %}
+{% endif %}
+{% else %}
+<h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
+{% endif %}
 {% endblock content %}

@@ -1,4 +1,5 @@
 import hashlib
+from dataclasses import dataclass
 
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, event, DateTime, Float
 from sqlalchemy.orm import relationship
@@ -6,6 +7,8 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
 from flask_login import UserMixin, current_user, logout_user
 from flask import redirect
+from marshmallow_sqlalchemy import ModelSchema
+from marshmallow import fields
 from app import db, admin
 
 
@@ -44,6 +47,7 @@ class PassbookRole(db.Model):
         return self.name
 
 
+# @dataclass
 class Passbook(db.Model, UserMixin):
     __tablename__ = "passbook"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -52,11 +56,45 @@ class Passbook(db.Model, UserMixin):
     date_create = Column(DateTime(50), nullable=False)
     money = Column(Float, nullable=False)
     phone_number = Column(Integer, nullable=False)
-    id_number = Column(Integer, nullable=False)
+    id_number = Column(String(20), nullable=False)
     passbook_role_id = Column(Integer, ForeignKey(PassbookRole.id), nullable=False)
 
     def __str__(self):
         return self.customer_name
+
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
+        return self
+
+    # def __init__(self, customer_name, address, date_create, money, phone_number, id_number, passbook_role_id):
+    #     self.customer_name = customer_name
+    #     self.address = address
+    #     self.date_create = date_create
+    #     self.money = money
+    #     self.phone_number = phone_number
+    #     self.id_number = id_number
+    #     self.passbook_role_id = passbook_role_id
+
+    def __repr__(self):
+        return '' % self.id
+
+    db.create_all()
+
+
+class PassBookSchema(ModelSchema):
+    class Meta(ModelSchema.Meta):
+        model = Passbook
+        sqla_session = db.session
+
+    id = fields.Number(dump_only=True)
+    customer_name = fields.String(required=True)
+    address = fields.String(required=True)
+    date_create = fields.DateTime(required=True)
+    money = fields.Float(required=True)
+    phone_number = fields.Integer(required=True)
+    id_number = fields.Integer(required=True)
+    passbook_role_id = fields.Integer(required=True)
 
 
 class AboutUsView(BaseView):
