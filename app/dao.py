@@ -14,8 +14,12 @@ def get_all_passbook():
     return Passbook.query.all()
 
 
-def get_passbook_role():
-    return PassbookRole.query.all()
+def get_passbook_id(passbook_id):
+    return Passbook.query.get(Passbook.id == passbook_id)
+
+
+def get_passbook_type():
+    return PassbookType.query.all()
 
 
 def add_passbook(passbook):
@@ -31,5 +35,3 @@ def add_passbook(passbook):
 #     return make_response(jsonify({"passbook": result}), 200)
 
 
-def get_id_passbook(passbook_id):
-    return Passbook.query.get(Passbook.id == passbook_id)

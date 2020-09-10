@@ -9,39 +9,39 @@
         <div class="form-group row">
             <label class="col-sm-4 col-form-label">Tên khách hàng</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" name="name_cus" required>
+                <input type="text" class="form-control" name="customer_name" required>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-4 col-form-label">Địa chỉ</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" name="address_cus" required>
+                <input type="text" class="form-control" name="address" required>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-4 col-form-label">Chứng minh nhân dân</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" name="cmnd_cus" required>
+                <input type="text" class="form-control" name="id_number" required>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-4 col-form-label">Số điện thoại</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" name="mobile_cus" required>
+                <input type="text" class="form-control" name="phone" required>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-4 col-form-label">Số tiền</label>
             <div class="col-sm-8">
-                <input type="number" min="100000" class="form-control" name="money_cus" required>
+                <input type="number" min="100000" class="form-control" name="money" required>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-4 col-form-label">Loại tiết kiệm</label>
             <div class="col-sm-8">
-                <select class="custom-select mr-sm-2" name="role">
-                    {% for x in pass_role %}
-                    <option value="{{ x.id }}">{{ x.name }}</option>
+                <select class="custom-select mr-sm-2" name="passbook_type">
+                    {% for x in passbook_type %}
+                    <option value="{{ x.id }}">{{ x.type_name }}</option>
                     {% endfor %}
                 </select>
             </div>

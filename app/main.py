@@ -63,29 +63,30 @@ def index():
 #     pass
 
 @app.route('/passbooks', methods=['GET'])
-def passbook_get():
+def passbook_get_all():
     return dao.get_all_passbook()
 
 
 @app.route('/passbooks/<id>', methods=['GET'])
-def passbook_get_id():
-    return dao.get_id_passbook()
+def passbook_get_by_id():
+    return dao.get_passbook_id()
 
 
-@app.route("/user/openpassbook")
-def openpassbook():
-    pass_role = dao.get_passbook_role()
+@app.route("/user/passbook")
+def passbook():
+    passbook_type = dao.get_passbook_type()
     passbooks = dao.get_all_passbook()
-    return render_template("user/openpassbook.html", title="Open Pass", passbooks=passbooks, pass_role=pass_role)
+    return render_template("user/passbook.html",
+                           title="Sổ Tiết Kiệm", passbooks=passbooks, passbook_type=passbook_type)
 
 
-@app.route("/user/openpassbookupdate")
-def openpassbookupdate():
-    return render_template("user/openpassbook.html", title="Update Pass")
+@app.route("/user/passbook_update")
+def passbook_update():
+    return render_template("user/passbook.html", title="Cập Nhật STK")
 
 
-@app.route("/user/openpassbook/charge", method=['GET','POST'])
-def openpassbook_charge():
+@app.route("/user/passbook/charge", methods=['GET', 'POST'])
+def passbook_charge():
     # if request.method == "POST":
     #     pass_id = request.form.get("charge_id_cus")
     #     pass_name = request.form.get("charge_name_cus")
@@ -95,25 +96,27 @@ def openpassbook_charge():
     return render_template("user/charge.html", title="Charge Pass")
 
 
-@app.route("/user/openpassbook/add", methods=['GET', 'POST'])
-def openpassbook_add():
-    name_cus = request.form.get("name_cus")
-    money_cus = request.form.get("money_cus")
-    address = request.form.get("address_cus")
-    time = date.today()
-    phone = request.form.get("mobile_cus")
-    cmnd = request.form.get("cmnd_cus")
-    role = request.form.get("role")
+@app.route("/user/passbook/add", methods=['GET', 'POST'])
+def passbook_add():
+    passbook_type = dao.get_passbook_type()
+    customer_name = request.form.get("customer_name")
+    money = request.form.get("money")
+    address = request.form.get("address")
+    created_date = date.today()
+    phone = request.form.get("phone")
+    id_number = request.form.get("id_number")
+    passbook_type_id = request.form.get("passbook_type")
 
-    new_passbook = Passbook(customer_name=name_cus, address=address, date_create=time, money=money_cus,
-                            phone_number=phone, id_number=cmnd, passbook_role_id=role)
+    new_passbook = Passbook(customer_name=customer_name, money=money, address=address, created_date=created_date,
+                            phone=phone, id_number=id_number, passbook_type_id=passbook_type_id)
 
     if request.method == "POST":
         dao.add_passbook(new_passbook)
         flash(f'Chào mừng !', 'success')
     else:
         flash(f'Chào mừng ', 'failed')
-    return render_template("user/openpassbookadd.html", title="Add Pass")
+
+    return render_template("user/passbook_add.html", title="Create Passbook", passbook_type=passbook_type)
 
 
 # @app.route("/user/sendpassbook/", methods=['GET','POST'])
@@ -126,37 +129,37 @@ def openpassbook_add():
 #     return dao.add_passbook()
 
 
-@app.route('/passbooks/<id>', methods=['PUT'])
-def passbook_update_by_id(id):
-    data = request.get_json()
-    get_passbook = Passbook.query.get(id)
-    if data.get('customer_name'):
-        get_passbook.customer_name = data['customer_name']
-    if data.get('address'):
-        get_passbook.address = data['address']
-    if data.get('date_create'):
-        get_passbook.date_create = data['date_create']
-    if data.get('money'):
-        get_passbook.money = data['money']
-    if data.get('phone_number'):
-        get_passbook.phone_number = data['phone_number']
-    if data.get('id_number'):
-        get_passbook.id_number = data['id_number']
-    if data.get('passbook_role_id'):
-        get_passbook.passbook_role_id = data['passbook_role_id']
-    db.session.add(get_passbook)
-    db.session.commit()
-    passbook_schema = PassBookSchema(
-        only=['id', 'customer_name', 'address', 'date_create', 'money', 'phone_number', 'id_number',
-              'passbook_role_id'])
-    passbook = passbook_schema.dump(get_passbook)
-    return make_response(jsonify({"passbook": passbook}))
+# @app.route('/passbooks/<id>', methods=['PUT'])
+# def passbook_update_by_id(id):
+#     data = request.get_json()
+#     get_passbook = Passbook.query.get(id)
+#     if data.get('customer_name'):
+#         get_passbook.customer_name = data['customer_name']
+#     if data.get('address'):
+#         get_passbook.address = data['address']
+#     if data.get('date_create'):
+#         get_passbook.date_create = data['date_create']
+#     if data.get('money'):
+#         get_passbook.money = data['money']
+#     if data.get('phone_number'):
+#         get_passbook.phone_number = data['phone_number']
+#     if data.get('id_number'):
+#         get_passbook.id_number = data['id_number']
+#     if data.get('passbook_type_id'):
+#         get_passbook.passbook_type_id = data['passbook_type_id']
+#     db.session.add(get_passbook)
+#     db.session.commit()
+#     passbook_schema = PassBookSchema(
+#         only=['id', 'customer_name', 'address', 'date_create', 'money', 'phone_number', 'id_number',
+#               'passbook_type_id'])
+#     passbook = passbook_schema.dump(get_passbook)
+#     return make_response(jsonify({"passbook": passbook}))
 
 
 @app.route('/passbooks/<id>', methods=['DELETE'])
-def passbook_delete_by_id(id):
-    get_passbook = Passbook.query.get(id)
-    db.session.delete(get_passbook)
+def delete_passbook_by_id(passbook_id):
+    passbook = Passbook.query.get(passbook_id)
+    db.session.delete(passbook)
     db.session.commit()
     return make_response("", 204)
 

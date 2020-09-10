@@ -32,9 +32,9 @@
                 <div class="navbar-nav mr-auto">
                     <a class="nav-item nav-link" href="/user">Home</a>
                     {% if current_user.is_authenticated %}
-                    <a class="nav-item nav-link" href="{{url_for('openpassbook')}}">Danh sách sổ</a>
-                    <a class="nav-item nav-link" href="{{url_for('openpassbook_add')}}">Thêm sổ</a>
-                    <a class="nav-item nav-link" href="{{ url_for('openpassbook_charge')}}">Nạp tiền</a>
+                    <a class="nav-item nav-link" href="{{url_for('passbook')}}">Danh sách sổ</a>
+                    <a class="nav-item nav-link" href="{{url_for('passbook_add')}}">Thêm sổ</a>
+                    <a class="nav-item nav-link" href="{{ url_for('passbook_charge')}}">Nạp tiền</a>
                     <a class="nav-item nav-link" href="#">Rút tiền</a>
                     <a class="nav-item nav-link" href="#">Báo cáo</a>
                     {% else %}

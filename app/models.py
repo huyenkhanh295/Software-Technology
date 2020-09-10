@@ -7,8 +7,6 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
 from flask_login import UserMixin, current_user, logout_user
 from flask import redirect
-from marshmallow_sqlalchemy import ModelSchema
-from marshmallow import fields
 from app import db, admin
 
 
@@ -35,16 +33,17 @@ class User(db.Model, UserMixin):
         return self.name
 
 
-class PassbookRole(db.Model):
+# loai STK
+class PassbookType(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
+    type_name = Column(String(50), nullable=False)
     interest_rate = Column(Float, nullable=False)
-    passbooks = relationship('Passbook', backref='PassbookRole', lazy=True)
+    passbooks = relationship('Passbook', backref='PassbookType', lazy=True)
 
     # lay chuoi dai dien: hien thi tren bang user thay cho cot role id
 
     def __str__(self):
-        return self.name
+        return self.type_name
 
 
 @dataclass
@@ -52,11 +51,11 @@ class Passbook(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     customer_name = Column(String(50), nullable=False)
     address = Column(String(50), nullable=False)
-    date_create = Column(DateTime(50), nullable=False)
+    created_date = Column(DateTime(50), nullable=False)
     money = Column(Float, nullable=False)
-    phone_number = Column(Integer, nullable=False)
+    phone = Column(String(10), nullable=False)
     id_number = Column(String(20), nullable=False)
-    passbook_role_id = Column(Integer, ForeignKey(PassbookRole.id), nullable=False)
+    passbook_type_id = Column(Integer, ForeignKey(PassbookType.id), nullable=False)
     receipts = relationship('Receipt', backref='Passbook', lazy=True)
 
     def __str__(self):
@@ -67,14 +66,14 @@ class Passbook(db.Model):
         db.session.commit()
         return self
 
-    # def __init__(self, customer_name, address, date_create, money, phone_number, id_number, passbook_role_id):
+    # def __init__(self, customer_name, address, created_date, money, phone_number, id_number, passbook_type_id):
     #     self.customer_name = customer_name
     #     self.address = address
-    #     self.date_create = date_create
+    #     self.created_date = created_date
     #     self.money = money
     #     self.phone_number = phone_number
     #     self.id_number = id_number
-    #     self.passbook_role_id = passbook_role_id
+    #     self.passbook_type_id = passbook_type_id
 
     def __repr__(self):
         return '' % self.id
@@ -90,13 +89,14 @@ class Passbook(db.Model):
 #     id = fields.Number(dump_only=True)
 #     customer_name = fields.String(required=True)
 #     address = fields.String(required=True)
-#     date_create = fields.DateTime(required=True)
+#     created_date = fields.DateTime(required=True)
 #     money = fields.Float(required=True)
-#     phone_number = fields.Integer(required=True)
+#     phone = fields.Integer(required=True)
 #     id_number = fields.Integer(required=True)
-#     passbook_role_id = fields.Integer(required=True)
+#     passbook_type_id = fields.Integer(required=True)
 
 
+# loai hoa don
 class ReceiptType(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
@@ -111,7 +111,7 @@ class Receipt(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     passbook_id = Column(Integer, ForeignKey(Passbook.id), nullable=False)
     customer_name = Column(String(50), nullable=False)
-    date_create = Column(DateTime(50), nullable=False)
+    created_date = Column(DateTime(50), nullable=False)
     money = Column(Float, nullable=False)
     receipt_type_id = Column(Integer, ForeignKey(ReceiptType.id), nullable=False)
 
@@ -150,7 +150,7 @@ class CustomView(ModelView):
     create_template = '/admin/create.html'
     edit_template = '/admin/edit.html'
     column_display_pk = True
-    form_excluded_columns = ['users', ]
+    form_excluded_columns = ['users', 'receipts', 'passbooks']  # hide column
     page_size = 10
 
     def is_accessible(self):
@@ -170,7 +170,7 @@ class ReadOnlyView(CustomView):
 
 class PassbookView(CustomView):
     column_searchable_list = ('id', 'customer_name',)
-    column_filters = ('customer_name', 'passbook_role_id')
+    column_filters = ('customer_name', 'passbook_type_id')
 
 
 class ReceiptView(CustomView):
@@ -181,12 +181,11 @@ class ReceiptView(CustomView):
 admin.add_view(ReadOnlyView(Role, db.session))
 admin.add_view(UserView(User, db.session))
 admin.add_view(PassbookView(Passbook, db.session))
-admin.add_view(CustomView(PassbookRole, db.session))
+admin.add_view(CustomView(PassbookType, db.session))
 admin.add_view(ReceiptView(Receipt, db.session))
-admin.add_view(ReadOnlyView(ReceiptType, db.session))
+admin.add_view(CustomView(ReceiptType, db.session))
 admin.add_view(AboutUsView(name="About Us"))
 admin.add_view(LogoutView(name="Logout"))
-
 
 if __name__ == "__main__":
     db.create_all()
