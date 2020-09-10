@@ -6,15 +6,13 @@
 <article class="media content-section">
     <div class="media-body">
         <div class="article-metadata">
-            <a class="mr-2" href="#">Số Cmnd: {{ p.id_number }}</a>
-            <small class="text-muted">Số điện thoại khách hàng: {{ p.phone_number }}</small>
         </div>
         <div class="row">
             <div class="col-md-10">
                 <h3 class="article-content">Tên khách hàng: {{ p.customer_name }}</h3>
                 {% for x in pass_role %}
                 {% if x.id == p.passbook_role_id %}
-                <p class="article-title">Loại sổ: {{ x.name }} và lãi suất: {{ x.interest_rate }}</p>
+                <p class="article-title">Loại sổ: {{ x.name }} - Lãi suất: {{ x.interest_rate }}%</p>
                 {% endif %}
                 {% endfor %}
                 <p class="article-title">Số tiền hiện tại: {{ "{:,.0f}".format(p.money) }}đ</p>
@@ -26,7 +24,7 @@
         <div class="row">
             <div class="col-md-8">
                 <p class="article-content">Địa chỉ: {{ p.address }}</p>
-                <small class="text-muted">Ngày tạo: {{ p.date_create }}</small>
+                <small class="text-muted">Ngày tạo: {{ p.date_create.strftime('%d-%m-%Y') }}</small>
             </div>
             <div class="col-md-4">
                 <div class="row">

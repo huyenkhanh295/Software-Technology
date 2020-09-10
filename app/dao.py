@@ -9,6 +9,7 @@ from app.models import *
 #     passbooks = passbook_schema.dump(get_passbook)
 #     return make_response(jsonify({"passbook": passbooks}))
 
+
 def get_all_passbook():
     return Passbook.query.all()
 
@@ -30,5 +31,5 @@ def add_passbook(passbook):
 #     return make_response(jsonify({"passbook": result}), 200)
 
 
-def get_id_passbook(id):
-    return Passbook.query.get(Passbook.id == id)
+def get_id_passbook(passbook_id):
+    return Passbook.query.get(Passbook.id == passbook_id)
