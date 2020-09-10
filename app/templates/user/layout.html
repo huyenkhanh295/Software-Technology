@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
           integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css' )}}">
@@ -59,7 +60,7 @@
 
 <main role="main" class="container">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             {% for category, message in messages %}
@@ -71,23 +72,22 @@
             {% endwith %}
             {% block content %}{% endblock %}
         </div>
-        <div class="col-md-3.5">
-            <div class="content-section">
-                <h3>Công cụ</h3>
-                <p class='text-muted'>Các công cụ
-                <ul class="list-group">
-                    <li class="list-group-item"><a href="/swagger"><input class="btn btn-outline-info" id="submit"
-                                                                          value="Test Api With Swagger"></a></li>
-                    <li class="list-group-item">Announcements</li>
-                    <li class="list-group-item">Calendars</li>
-                    <li class="list-group-item">etc</li>
-                </ul>
-                </p>
-            </div>
-        </div>
+<!--        <div class="col-md-3.5">-->
+<!--            <div class="content-section">-->
+<!--                <h3>Công cụ</h3>-->
+<!--                <p class='text-muted'>Các công cụ-->
+<!--                <ul class="list-group">-->
+<!--                    <li class="list-group-item"><a href="/swagger"><input class="btn btn-outline-info" id="submit"-->
+<!--                                                                          value="Test Api With Swagger"></a></li>-->
+<!--                    <li class="list-group-item">Announcements</li>-->
+<!--                    <li class="list-group-item">Calendars</li>-->
+<!--                    <li class="list-group-item">etc</li>-->
+<!--                </ul>-->
+<!--                </p>-->
+<!--            </div>-->
+<!--        </div>-->
     </div>
 </main>
->
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->

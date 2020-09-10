@@ -1,48 +1,59 @@
 {% extends "user/layout.html" %}
 {% block content %}
 {% if current_user.is_authenticated %}
-{% if passbooks %}
-{% for p in passbooks %}
-<article class="media content-section">
-    <div class="media-body">
-        <div class="article-metadata">
-            <a class="mr-2" href="#">Số CMND: {{ p.id_number }}</a>
-            <small class="text-muted">Số điện thoại: {{ p.phone }}</small>
-        </div>
-        <div class="row">
-            <div class="col-md-10">
-                <h3 class="article-content">Tên khách hàng: {{ p.customer_name }}</h3>
+
+<div>
+    <h2 class="text-center text-info">DANH SÁCH SỔ TIẾT KIỆM</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr class="text-center">
+                <th class="align-middle">Mã sổ</th>
+                <th class="align-middle">Tên khách hàng</th>
+                <th class="align-middle">Địa chỉ</th>
+                <th class="align-middle">CMND</th>
+                <th class="align-middle">Số điện thoại</th>
+                <th class="align-middle">Số tiền</th>
+                <th class="align-middle">Loại tiết kiệm</th>
+                <th class="align-middle">Ngày tạo</th>
+                <th></th>
+            </tr>
+        </thead>
+    <tbody>
+    {% if passbooks %}
+        {% for p in passbooks %}
+            <tr>
                 {% for x in passbook_type %}
-                {% if x.id == p.passbook_type_id %}
-                <p class="article-title">Loại sổ: {{ x.type_name }} - Lãi suất: {{ x.interest_rate }}%</p>
-                {% endif %}
+                    {% if x.id == p.passbook_type_id %}
+                        <td class="text-center">{{ p.id }}</td>
+                        <td>{{ p.customer_name }}</td>
+                        <td>{{ p.address }}</td>
+                        <td>{{ p.id_number }}</td>
+                        <td>{{ p.phone }}</td>
+                        <td  class="text-right">{{ "{:,.0f}".format(p.money) }}đ</td>
+                        <td class="text-center">{{ x.type_name }}</td>
+                        <td class="text-center">{{ p.created_date.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button id="myBtn" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                </br>
+                                <button id="delete" class="btn btn-info">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                    {% endif %}
                 {% endfor %}
-                <p class="article-title">Số tiền hiện tại: {{ "{:,.0f}".format(p.money) }}đ</p>
-            </div>
-            <div class="col-md-3s">
-            </div>
-        </div>
-        <hr>
-        <div class="row">
-            <div class="col-md-8">
-                <p class="article-content">Địa chỉ: {{ p.address }}</p>
-                <small class="text-muted">Ngày tạo: {{ p.created_date.strftime('%d-%m-%Y') }}</small>
-            </div>
-            <div class="col-md-4">
-                <div class="row">
-                    <div class="col-md-4">
-                        <button id="myBtn" class="btn btn-outline-secondary">Xóa</button>
-                    </div>
-                    <div class="col-md-8">
-                        <button id="delete" class="btn btn-outline-info">Cập nhập</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</article>
-{% endfor %}
-{% endif %}
+            </tr>
+        {% endfor %}
+    {% endif %}
+    </tbody>
+    </table>
+</div>
+
+
+
 {% else %}
 <h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
 {% endif %}
