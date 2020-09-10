@@ -28,6 +28,7 @@ class User(db.Model, UserMixin):
     username = Column(String(50), nullable=False)
     password = Column(String(50), nullable=False)
     role_id = Column(Integer, ForeignKey(Role.id), nullable=False)
+    creators = relationship('Receipt', backref='receipt_creator', lazy=True)
 
     def __str__(self):
         return self.name
@@ -114,6 +115,7 @@ class Receipt(db.Model):
     created_date = Column(DateTime(50), nullable=False)
     money = Column(Float, nullable=False)
     receipt_type_id = Column(Integer, ForeignKey(ReceiptType.id), nullable=False)
+    creator_id = Column(Integer, ForeignKey(User.id))
 
     def __str__(self):
         return self.name
@@ -150,7 +152,7 @@ class CustomView(ModelView):
     create_template = '/admin/create.html'
     edit_template = '/admin/edit.html'
     column_display_pk = True
-    form_excluded_columns = ['users', 'receipts', 'passbooks']  # hide column
+    form_excluded_columns = ['users', 'receipts', 'passbooks', 'creators']  # hide column
     page_size = 10
 
     def is_accessible(self):
@@ -183,7 +185,7 @@ admin.add_view(UserView(User, db.session))
 admin.add_view(PassbookView(Passbook, db.session))
 admin.add_view(CustomView(PassbookType, db.session))
 admin.add_view(ReceiptView(Receipt, db.session))
-admin.add_view(CustomView(ReceiptType, db.session))
+admin.add_view(ReadOnlyView(ReceiptType, db.session))
 admin.add_view(AboutUsView(name="About Us"))
 admin.add_view(LogoutView(name="Logout"))
 
