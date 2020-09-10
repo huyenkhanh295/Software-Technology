@@ -79,6 +79,22 @@ def openpassbook():
     return render_template("user/openpassbook.html", title="Open Pass", passbooks=passbooks, pass_role=pass_role)
 
 
+@app.route("/user/openpassbookupdate")
+def openpassbookupdate():
+    return render_template("user/openpassbook.html", title="Update Pass")
+
+
+@app.route("/user/openpassbook/charge", method=['GET','POST'])
+def openpassbook_charge():
+    # if request.method == "POST":
+    #     pass_id = request.form.get("charge_id_cus")
+    #     pass_name = request.form.get("charge_name_cus")
+    #     pass_money = request.form.get("charge_money_cus")
+    #     update_passbook = (id = pass_id, customer_name = pass_name, )
+    #     dao.add_passbook()
+    return render_template("user/charge.html", title="Charge Pass")
+
+
 @app.route("/user/openpassbook/add", methods=['GET', 'POST'])
 def openpassbook_add():
     name_cus = request.form.get("name_cus")
@@ -97,7 +113,7 @@ def openpassbook_add():
         flash(f'Chào mừng !', 'success')
     else:
         flash(f'Chào mừng ', 'failed')
-    return render_template("user/openpassbookadd.html")
+    return render_template("user/openpassbookadd.html", title="Add Pass")
 
 
 # @app.route("/user/sendpassbook/", methods=['GET','POST'])

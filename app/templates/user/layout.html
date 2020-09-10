@@ -23,7 +23,7 @@
 <header class="site-header">
     <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
         <div class="container">
-            <a class="navbar-brand mr-4" href="/user">Flask Blog</a>
+            <a class="navbar-brand mr-4" href="/user">So Tiet Kiem</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle"
                     aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -34,15 +34,20 @@
                     {% if current_user.is_authenticated %}
                     <a class="nav-item nav-link" href="{{url_for('openpassbook')}}">Danh sách sổ</a>
                     <a class="nav-item nav-link" href="{{url_for('openpassbook_add')}}">Thêm sổ</a>
+                    <a class="nav-item nav-link" href="{{ url_for('openpassbook_charge')}}">Nạp tiền</a>
+                    <a class="nav-item nav-link" href="#">Rút tiền</a>
+                    <a class="nav-item nav-link" href="#">Báo cáo</a>
                     {% else %}
                     {% endif %}
                 </div>
                 <!-- Navbar Right Side -->
                 <div class="navbar-nav">
                     {% if current_user.is_authenticated %}
-                    <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    <input type="text" placeholder="Tìm kiếm...">
+                    <button type="button">Tìm</button>
+                    <a class="nav-item nav-link" href="{{ url_for('logout') }}">Đăng xuất</a>
                     {% else %}
-                    <a class="nav-item nav-link" href="{{ url_for('login_user_on') }}">Login</a>
+                    <a class="nav-item nav-link" href="{{ url_for('login_user_on') }}">Đăng nhập</a>
                     {% endif %}
                 </div>
             </div>
@@ -71,7 +76,8 @@
                 <h3>Công cụ</h3>
                 <p class='text-muted'>Các công cụ
                 <ul class="list-group">
-                    <li class="list-group-item"><a href="/swagger"><input class="btn btn-outline-info" id="submit" value="Test Api With Swagger"></a></li>
+                    <li class="list-group-item"><a href="/swagger"><input class="btn btn-outline-info" id="submit"
+                                                                          value="Test Api With Swagger"></a></li>
                     <li class="list-group-item">Announcements</li>
                     <li class="list-group-item">Calendars</li>
                     <li class="list-group-item">etc</li>
@@ -94,5 +100,6 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
         crossorigin="anonymous"></script>
+<script src="{{url_for('static',filename='js/openmodal.js')}}"></script>
 </body>
 </html>
