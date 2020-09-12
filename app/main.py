@@ -48,41 +48,28 @@ def index():
     return render_template("index.html")
 
 
-# @app.route("/passbooks", methods=["GET"])
-# def get_passbooks():
-#     return Passbook.query.all()
-#
-#
-# @app.route("/passbooks/<int:passbook_id>", methods=["GET"])
-# def get_passbooks_by_id(passbook_id):
-#     pass
-#
-#
-# @app.route("/passbooks/add", methods=["POST"])
-# def insert_passbooks():
-#     pass
-
 @app.route('/passbooks', methods=['GET'])
 def passbook_get_all():
     return dao.get_all_passbook()
 
 
-@app.route('/passbooks/<id>', methods=['GET'])
-def passbook_get_by_id():
-    return dao.get_passbook_id()
+@app.route('/api/passbooks/<int:passbook_id>', methods=['GET'])
+def passbook_get_by_id(passbook_id):
+    p = dao.get_passbook_by_id(passbook_id=passbook_id)
+    return jsonify({
+        "status": 200,
+        "message": "successful",
+        "data": {"customer_name": p.customer_name}
+    })
 
 
+# show list of passbook on passbook.html
 @app.route("/user/passbook")
 def passbook():
     passbook_type = dao.get_passbook_type()
     passbooks = dao.get_all_passbook()
     return render_template("user/passbook.html",
                            title="Sổ Tiết Kiệm", passbooks=passbooks, passbook_type=passbook_type)
-
-
-@app.route("/user/passbook_update")
-def passbook_update():
-    return render_template("user/passbook.html", title="Cập Nhật STK")
 
 
 @app.route("/user/passbook/charge", methods=['GET', 'POST'])
@@ -97,71 +84,58 @@ def passbook_charge():
 
 
 @app.route("/user/passbook/add", methods=['GET', 'POST'])
-def passbook_add():
-    passbook_type = dao.get_passbook_type()
-    customer_name = request.form.get("customer_name")
-    money = request.form.get("money")
-    address = request.form.get("address")
-    created_date = date.today()
-    phone = request.form.get("phone")
-    id_number = request.form.get("id_number")
-    passbook_type_id = request.form.get("passbook_type")
+def passbook_add_or_update():
+    passbook_id = request.args.get("passbook_id")
+    err = ""
 
-    new_passbook = Passbook(customer_name=customer_name, money=money, address=address, created_date=created_date,
-                            phone=phone, id_number=id_number, passbook_type_id=passbook_type_id)
+    # customer_name = request.form.get("customer_name")
+    # money = request.form.get("money")
+    # address = request.form.get("address")
+    # created_date = date.today()
+    # phone = request.form.get("phone")
+    # id_number = request.form.get("id_number")
+    # passbook_type_id = request.form.get("passbook_type")
+    #
+    # new_passbook = Passbook(customer_name=customer_name, money=money, address=address, created_date=created_date,
+    #                         phone=phone, id_number=id_number, passbook_type_id=passbook_type_id)
 
     if request.method == "POST":
-        dao.add_passbook(new_passbook)
-        flash(f'Chào mừng !', 'success')
-    else:
-        flash(f'Chào mừng ', 'failed')
 
-    return render_template("user/passbook_add.html", title="Create Passbook", passbook_type=passbook_type)
+        if passbook_id:  # Cap nhat
+            data = dict(request.form.copy())
+            data["passbook_id"] = passbook_id
+            if dao.update_passbook(**data):
+                return redirect(url_for("passbook"))
+        else:  # Them
+            data = dict(request.form.copy())
+            if dao.add_passbook(**dict(request.form)):
+                return redirect(url_for("passbook"))
 
+        err = "Something wrong!!! Please back later!!!"
 
-# @app.route("/user/sendpassbook/", methods=['GET','POST'])
-# def sendpassbook():
-#
+    passbook = None
+    if passbook_id:
+        passbook = dao.get_passbook_by_id(passbook_id=int(passbook_id))
 
-
-# @app.route('/passbooks', methods=['POST'])
-# def passbook_post():
-#     return dao.add_passbook()
-
-
-# @app.route('/passbooks/<id>', methods=['PUT'])
-# def passbook_update_by_id(id):
-#     data = request.get_json()
-#     get_passbook = Passbook.query.get(id)
-#     if data.get('customer_name'):
-#         get_passbook.customer_name = data['customer_name']
-#     if data.get('address'):
-#         get_passbook.address = data['address']
-#     if data.get('date_create'):
-#         get_passbook.date_create = data['date_create']
-#     if data.get('money'):
-#         get_passbook.money = data['money']
-#     if data.get('phone_number'):
-#         get_passbook.phone_number = data['phone_number']
-#     if data.get('id_number'):
-#         get_passbook.id_number = data['id_number']
-#     if data.get('passbook_type_id'):
-#         get_passbook.passbook_type_id = data['passbook_type_id']
-#     db.session.add(get_passbook)
-#     db.session.commit()
-#     passbook_schema = PassBookSchema(
-#         only=['id', 'customer_name', 'address', 'date_create', 'money', 'phone_number', 'id_number',
-#               'passbook_type_id'])
-#     passbook = passbook_schema.dump(get_passbook)
-#     return make_response(jsonify({"passbook": passbook}))
+    return render_template("user/passbook_add.html",
+                           passbook_type=dao.get_passbook_type(),
+                           passbook=passbook,
+                           err=err)
 
 
-@app.route('/passbooks/<id>', methods=['DELETE'])
-def delete_passbook_by_id(passbook_id):
-    passbook = Passbook.query.get(passbook_id)
-    db.session.delete(passbook)
-    db.session.commit()
-    return make_response("", 204)
+@app.route("/api/passbooks/<int:passbook_id>", methods=["delete"])
+def delete_passbook(passbook_id):
+    if dao.delete_passbook(passbook_id=passbook_id):
+        return jsonify({
+            "status": 200,
+            "message": "successful",
+            "data": {"passbook_id": passbook_id}
+        })
+
+    return jsonify({
+        "status": 500,
+        "message": "Failed"
+    })
 
 
 @app.route("/login-user", methods=["post", "get"])

@@ -47,7 +47,7 @@ class PassbookType(db.Model):
         return self.type_name
 
 
-@dataclass
+# @dataclass
 class Passbook(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True)
     customer_name = Column(String(50), nullable=False)
@@ -57,15 +57,16 @@ class Passbook(db.Model):
     phone = Column(String(10), nullable=False)
     id_number = Column(String(20), nullable=False)
     passbook_type_id = Column(Integer, ForeignKey(PassbookType.id), nullable=False)
+    active = Column(Boolean, nullable=False, default=True)
     receipts = relationship('Receipt', backref='Passbook', lazy=True)
 
     def __str__(self):
         return str(self.id)
 
-    def create(self):
-        db.session.add(self)
-        db.session.commit()
-        return self
+    # def create(self):
+    #     db.session.add(self)
+    #     db.session.commit()
+    #     return self
 
     # def __init__(self, customer_name, address, created_date, money, phone_number, id_number, passbook_type_id):
     #     self.customer_name = customer_name
@@ -76,10 +77,10 @@ class Passbook(db.Model):
     #     self.id_number = id_number
     #     self.passbook_type_id = passbook_type_id
 
-    def __repr__(self):
-        return '' % self.id
+    # def __repr__(self):
+    #     return '' % self.id
 
-    db.create_all()
+    # db.create_all()
 
 
 # class PassBookSchema(ModelSchema):
@@ -115,7 +116,7 @@ class Receipt(db.Model):
     created_date = Column(DateTime(50), nullable=False)
     money = Column(Float, nullable=False)
     receipt_type_id = Column(Integer, ForeignKey(ReceiptType.id), nullable=False)
-    creator_id = Column(Integer, ForeignKey(User.id))
+    creator_id = Column(Integer, ForeignKey(User.id), nullable=False)
 
     def __str__(self):
         return self.name

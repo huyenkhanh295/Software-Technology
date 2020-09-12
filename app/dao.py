@@ -1,6 +1,9 @@
+from datetime import date
+
 from flask import request, make_response, jsonify
 
 from app.models import *
+
 
 # Swagger
 # def get_all_passbook():
@@ -14,17 +17,57 @@ def get_all_passbook():
     return Passbook.query.all()
 
 
-def get_passbook_id(passbook_id):
-    return Passbook.query.get(Passbook.id == passbook_id)
+def get_passbook_by_id(passbook_id):
+    return Passbook.query.get(passbook_id)
 
 
 def get_passbook_type():
     return PassbookType.query.all()
 
 
-def add_passbook(passbook):
-    return passbook.create()
+def add_passbook(customer_name, address, id_number, phone, money, passbook_type_id, active):
+    p = Passbook()
+    p.customer_name = customer_name
+    p.address = address
+    p.id_number = id_number
+    p.phone = phone
+    p.created_date = date.today()
+    p.money = float(money)
+    p.passbook_type_id = passbook_type_id
+    if active == '':
+        active = 'True'
+    p.active = bool(active)
 
+    db.session.add(p)
+    db.session.commit()
+
+    return True
+
+
+def update_passbook(passbook_id, customer_name, address, id_number, phone, money, passbook_type_id, active='False'):
+    p = get_passbook_by_id(passbook_id=int(passbook_id))
+    p.customer_name = customer_name
+    p.address = address
+    p.id_number = id_number
+    p.phone = phone
+    p.money = float(money)
+    p.passbook_type_id = passbook_type_id
+    if active == '':
+        active = 'True'
+    else:
+        active = ''
+    p.active = bool(active)
+
+    db.session.add(p)
+    db.session.commit()
+    return True
+
+
+def delete_passbook(passbook_id):
+    p = get_passbook_by_id(passbook_id=passbook_id)
+    db.session.delete(p)
+    db.session.commit()
+    return True
 
 # Swagger
 # def add_passbook():
@@ -33,5 +76,3 @@ def add_passbook(passbook):
 #     passbooks = passbook_schema.load(data)
 #     result = passbook_schema.dump(passbooks.create())
 #     return make_response(jsonify({"passbook": result}), 200)
-
-

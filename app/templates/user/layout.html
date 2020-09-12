@@ -18,6 +18,7 @@
     <meta charset="UTF-8">
     <title>Sổ Tiết Kiệm</title>
     {% endif %}
+    {% block header %}{% endblock %}
 </head>
 <body>
 <!--Header navi-->
@@ -34,7 +35,7 @@
                     <a class="nav-item nav-link" href="/user">Home</a>
                     {% if current_user.is_authenticated %}
                     <a class="nav-item nav-link" href="{{url_for('passbook')}}">Danh sách sổ</a>
-                    <a class="nav-item nav-link" href="{{url_for('passbook_add')}}">Thêm sổ</a>
+                    <a class="nav-item nav-link" href="{{url_for('passbook_add_or_update')}}">Thêm sổ</a>
                     <a class="nav-item nav-link" href="{{ url_for('passbook_charge')}}">Nạp tiền</a>
                     <a class="nav-item nav-link" href="#">Rút tiền</a>
                     <a class="nav-item nav-link" href="#">Báo cáo</a>
@@ -100,6 +101,5 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
         crossorigin="anonymous"></script>
-<script src="{{url_for('static',filename='js/openmodal.js')}}"></script>
 </body>
 </html>
