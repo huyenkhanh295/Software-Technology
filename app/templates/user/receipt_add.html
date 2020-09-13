@@ -1,0 +1,54 @@
+{% extends "user/layout.html" %}
+{% block content %}
+{% if current_user.is_authenticated %}
+<div class="content-section">
+    </br>
+    <h3 class="text-center ">
+        {% if deposit_slip %}
+        LẬP PHIẾU GỬI TIỀN
+        {% else %}
+        LẬP PHIẾU RÚT TIỀN
+        {% endif %}
+    </h3>
+    </br>
+    <form class="form-group" method="POST">
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Mã sổ</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="passbook_id" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Tên khách hàng</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="customer_name" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Số tiền</label>
+            <div class="col-sm-8">
+                <input type="number" min="100000" class="form-control" name="money" required >
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Người lập hóa đơn</label>
+            <div class="col-sm-8">
+                <select class="custom-select mr-sm-2" name="creator_id">
+                    {% for c in creator %}
+                    <option name="creator_id" value="{{ c.id }}" >{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-12 d-flex justify-content-end">
+                <input class="btn btn-primary" type="submit"
+                       value="Lập phiếu" />
+            </div>
+        </div>
+    </form>
+</div>
+{% else %}
+<h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
+{% endif %}
+{% endblock content %}

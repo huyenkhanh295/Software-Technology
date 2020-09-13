@@ -1,0 +1,95 @@
+{% extends "user/layout.html" %}
+{% block content %}
+{% if current_user.is_authenticated %}
+
+<div>
+    <h2 class="text-center text-info">
+        {% if deposit_slip %}
+        DANH SÁCH PHIẾU GỬI TIỀN
+        {% else %}
+        DANH SÁCH PHIẾU RÚT TIỀN
+        {% endif %}
+    </h2>
+    <div class="card shadow">
+        <div class="card-header">
+            <div class="row d-flex align-items-baseline justify-content-end">
+                {% if deposit_slip %}
+                <a class="nav-item nav-link" href="{{ url_for('make_a_deposit_slip')}}">
+                    <button class="btn btn-info">Lập phiếu gửi tiền</button>
+                </a>
+                {% else %}
+                <a class="nav-item nav-link" href="{{ url_for('make_a_withdrawal_slip')}}">
+                    <button class="btn btn-info">Lập phiếu rút tiền</button>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered m-0">
+                    <thead>
+                        <tr class="text-center">
+                            <th class="align-middle">Mã phiếu</th>
+                            <th class="align-middle">Mã sổ</th>
+                            <th class="align-middle">Tên khách hàng</th>
+                            <th class="align-middle">Số tiền</th>
+                            <th class="align-middle">Ngày gửi</th>
+                            <th class="align-middle">Người lập phiếu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% if deposit_slip %}
+                        {% for d in deposit_slip %}
+                            <tr>
+                                <td class="text-center">{{ d.id }}</td>
+                                <td class="text-center">{{ d.passbook_id }}</td>
+                                <td>{{ d.customer_name }}</td>
+                                <td  class="text-right">{{ "{:,.0f}".format(d.money) }}đ</td>
+                                <td class="text-center">{{ d.created_date.strftime('%d/%m/%Y') }}</td>
+                                {% for c in creator %}
+                                    {% if d.creator_id == c.id %}
+                                        <td class="text-center">{{ c.name }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                    {% if withdrawal_slip %}
+                        {% for w in withdrawal_slip %}
+                            <tr>
+                                <td class="text-center">{{ w.id }}</td>
+                                <td class="text-center">{{ w.passbook_id }}</td>
+                                <td>{{ w.customer_name }}</td>
+                                <td  class="text-right">{{ "{:,.0f}".format(w.money) }}đ</td>
+                                <td class="text-center">{{ w.created_date.strftime('%d/%m/%Y') }}</td>
+                                {% for c in creator %}
+                                    {% if w.creator_id == c.id %}
+                                        <td class="text-center">{{ c.name }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer">
+            <ul class="pagination m-0 d-flex justify-content-end">
+                <li class="paginate_button page-item">
+                    <a href="javascript:void(0);" class="page-link">Trước</a>
+                </li>
+                <li class="paginate_button page-item active">
+                    <a href="#" class="page-link">1</a>
+                <li class="paginate_button page-item">
+                    <a href="javascript:void(0);" class="page-link">Sau</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
+{% endif %}
+{% endblock content %}

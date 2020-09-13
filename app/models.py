@@ -63,25 +63,6 @@ class Passbook(db.Model):
     def __str__(self):
         return str(self.id)
 
-    # def create(self):
-    #     db.session.add(self)
-    #     db.session.commit()
-    #     return self
-
-    # def __init__(self, customer_name, address, created_date, money, phone_number, id_number, passbook_type_id):
-    #     self.customer_name = customer_name
-    #     self.address = address
-    #     self.created_date = created_date
-    #     self.money = money
-    #     self.phone_number = phone_number
-    #     self.id_number = id_number
-    #     self.passbook_type_id = passbook_type_id
-
-    # def __repr__(self):
-    #     return '' % self.id
-
-    # db.create_all()
-
 
 # class PassBookSchema(ModelSchema):
 #     class Meta(ModelSchema.Meta):
