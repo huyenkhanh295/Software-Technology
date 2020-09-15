@@ -1,4 +1,7 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+import hashlib
+from dataclasses import dataclass
+
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, event, DateTime, Float
 from sqlalchemy.orm import relationship
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
@@ -25,26 +28,104 @@ class User(db.Model, UserMixin):
     username = Column(String(50), nullable=False)
     password = Column(String(50), nullable=False)
     role_id = Column(Integer, ForeignKey(Role.id), nullable=False)
+    creators = relationship('Receipt', backref='receipt_creator', lazy=True)
 
     def __str__(self):
         return self.name
 
 
-class RoleModelView(ModelView):
-    column_display_pk = True
-    can_create = False
+# loai STK
+class PassbookType(db.Model):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    type_name = Column(String(50), nullable=False)
+    interest_rate = Column(Float, nullable=False)
+    passbooks = relationship('Passbook', backref='PassbookType', lazy=True)
 
-    def is_accessible(self):
-        return current_user.is_authenticated
+    # lay chuoi dai dien: hien thi tren bang user thay cho cot role id
+
+    def __str__(self):
+        return self.type_name
+
+
+# @dataclass
+class Passbook(db.Model):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    customer_name = Column(String(50), nullable=False)
+    address = Column(String(50), nullable=False)
+    created_date = Column(DateTime(50), nullable=False)
+    money = Column(Float, nullable=False)
+    phone = Column(String(10), nullable=False)
+    id_number = Column(String(20), nullable=False)
+    passbook_type_id = Column(Integer, ForeignKey(PassbookType.id), nullable=False)
+    active = Column(Boolean, nullable=False, default=True)
+    receipts = relationship('Receipt', backref='Passbook', lazy=True)
+
+    def __str__(self):
+        return str(self.id)
+
+    # def create(self):
+    #     db.session.add(self)
+    #     db.session.commit()
+    #     return self
+
+    # def __init__(self, customer_name, address, created_date, money, phone_number, id_number, passbook_type_id):
+    #     self.customer_name = customer_name
+    #     self.address = address
+    #     self.created_date = created_date
+    #     self.money = money
+    #     self.phone_number = phone_number
+    #     self.id_number = id_number
+    #     self.passbook_type_id = passbook_type_id
+
+    # def __repr__(self):
+    #     return '' % self.id
+
+    # db.create_all()
+
+
+# class PassBookSchema(ModelSchema):
+#     class Meta(ModelSchema.Meta):
+#         model = Passbook
+#         sqla_session = db.session
+#
+#     id = fields.Number(dump_only=True)
+#     customer_name = fields.String(required=True)
+#     address = fields.String(required=True)
+#     created_date = fields.DateTime(required=True)
+#     money = fields.Float(required=True)
+#     phone = fields.Integer(required=True)
+#     id_number = fields.Integer(required=True)
+#     passbook_type_id = fields.Integer(required=True)
+
+
+# loai hoa don
+class ReceiptType(db.Model):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(50), nullable=False)
+    receipts = relationship('Receipt', backref='ReceiptType', lazy=True)
+
+    # lay chuoi dai dien: hien thi tren bang user thay cho cot role id
+    def __str__(self):
+        return self.name
+
+
+class Receipt(db.Model):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    passbook_id = Column(Integer, ForeignKey(Passbook.id), nullable=False)
+    customer_name = Column(String(50), nullable=False)
+    created_date = Column(DateTime(50), nullable=False)
+    money = Column(Float, nullable=False)
+    receipt_type_id = Column(Integer, ForeignKey(ReceiptType.id), nullable=False)
+    creator_id = Column(Integer, ForeignKey(User.id), nullable=False)
+
+    def __str__(self):
+        return self.name
 
 
 class AboutUsView(BaseView):
     @expose("/")
     def index(self):
         return self.render("admin/about-us.html")
-
-    def is_accessible(self):
-        return current_user.is_authenticated
 
 
 class LogoutView(BaseView):
@@ -58,8 +139,54 @@ class LogoutView(BaseView):
         return current_user.is_authenticated
 
 
-admin.add_view(RoleModelView(Role, db.session))
-admin.add_view(ModelView(User, db.session))
+@event.listens_for(User.password, 'set', retval=True)
+def hash_user_password(target, value, oldvalue, initiator):
+    if value != oldvalue:
+        value = str(hashlib.md5(value.strip().encode("utf-8")).hexdigest())
+        return value
+    return value
+
+
+# Customized admin interface
+class CustomView(ModelView):
+    list_template = '/admin/list.html'
+    create_template = '/admin/create.html'
+    edit_template = '/admin/edit.html'
+    column_display_pk = True
+    form_excluded_columns = ['users', 'receipts', 'passbooks', 'creators']  # hide column
+    page_size = 10
+
+    def is_accessible(self):
+        return current_user.is_authenticated
+
+
+class UserView(CustomView):
+    column_searchable_list = ('name',)
+    column_filters = ('name', 'role_id')
+
+
+class ReadOnlyView(CustomView):
+    can_create = False
+    can_edit = False
+    can_delete = False
+
+
+class PassbookView(CustomView):
+    column_searchable_list = ('id', 'customer_name',)
+    column_filters = ('customer_name', 'passbook_type_id')
+
+
+class ReceiptView(CustomView):
+    column_searchable_list = ('id', 'customer_name',)
+    column_filters = ('customer_name', 'receipt_type_id')
+
+
+admin.add_view(ReadOnlyView(Role, db.session))
+admin.add_view(UserView(User, db.session))
+admin.add_view(PassbookView(Passbook, db.session))
+admin.add_view(CustomView(PassbookType, db.session))
+admin.add_view(ReceiptView(Receipt, db.session))
+admin.add_view(ReadOnlyView(ReceiptType, db.session))
 admin.add_view(AboutUsView(name="About Us"))
 admin.add_view(LogoutView(name="Logout"))
 

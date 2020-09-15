@@ -1,0 +1,69 @@
+{% extends "user/layout.html" %}
+{% block content %}
+{% if current_user.is_authenticated %}
+<div class="content-section">
+    </br>
+    <h3 class="text-center ">
+        {% if request.args.get('passbook_id') %} CẬP NHẬT {% else %}TẠO {% endif %}SỔ TIẾT KIỆM
+    </h3>
+    </br>
+    <form class="form-group" method="POST">
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Tên khách hàng</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" value="{{ passbook.customer_name }}" name="customer_name" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Địa chỉ</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" value="{{ passbook.address }}" name="address" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Chứng minh nhân dân</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" value="{{ passbook.id_number }}" name="id_number" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Số điện thoại</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" value="{{ passbook.phone }}" name="phone" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Số tiền</label>
+            <div class="col-sm-8">
+                <input type="number" min="100000" class="form-control" value="{{ passbook.money }}" name="money" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Loại tiết kiệm</label>
+            <div class="col-sm-8">
+                <select class="custom-select mr-sm-2" name="passbook_type_id">
+                    {% for x in passbook_type %}
+                    <option name="passbook_type_id" value="{{ x.id }}" {% if x.id == passbook.passbook_type_id %}selected{% endif %}>{{ x.type_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Tình trạng sổ</label>
+            <div class="col-sm-8">
+                <input type="checkbox" class="form-control" name="active" checked
+                       value="{% if request.args.get('passbook_id') %}{{ passbook.active }}{% else %}True{% endif %}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <input class="btn btn-primary" type="submit"
+                       value="{% if request.args.get('passbook_id') %}Cập nhật{% else %}Tạo{% endif %} sổ" />
+            </div>
+        </div>
+    </form>
+</div>
+{% else %}
+<h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
+{% endif %}
+{% endblock content %}

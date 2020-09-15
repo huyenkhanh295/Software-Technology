@@ -1,0 +1,85 @@
+{% extends "user/layout.html" %}
+{% block header%}
+<script>
+    function delete_passbook(passbookId) {
+            var c = confirm("Bạn có chắc chắn xóa?");
+            if (c == true){
+                fetch("/api/passbooks/" + passbookId, {
+                    method: "delete"
+                }).then(function(res) {
+                    return res.json();
+                }).then(function(data){
+                    console.info(data);
+                    var passbookId = data.data.passbook_id;
+                    var p = document.getElementById("passbook" + passbookId);
+                    p.style.display = "none";
+                }).catch(function(err) {
+                    console.error(err);
+                });
+            }
+        }
+</script>
+{% endblock %}
+
+{% block content %}
+{% if current_user.is_authenticated %}
+
+<div>
+    <h2 class="text-center text-info">DANH SÁCH SỔ TIẾT KIỆM</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr class="text-center">
+                <th class="align-middle">Mã sổ</th>
+                <th class="align-middle">Tên khách hàng</th>
+                <th class="align-middle">Địa chỉ</th>
+                <th class="align-middle">CMND</th>
+                <th class="align-middle">Số điện thoại</th>
+                <th class="align-middle">Số tiền</th>
+                <th class="align-middle">Loại tiết kiệm</th>
+                <th class="align-middle">Tình trạng</th>
+                <th class="align-middle">Ngày tạo</th>
+                <th></th>
+            </tr>
+        </thead>
+    <tbody>
+    {% if passbooks %}
+        {% for p in passbooks %}
+            <tr id="passbook{{ p.id }}">
+                {% for x in passbook_type %}
+                    {% if x.id == p.passbook_type_id %}
+                        <td class="text-center">{{ p.id }}</td>
+                        <td>{{ p.customer_name }}</td>
+                        <td>{{ p.address }}</td>
+                        <td>{{ p.id_number }}</td>
+                        <td>{{ p.phone }}</td>
+                        <td  class="text-right">{{ "{:,.0f}".format(p.money) }}đ</td>
+                        <td class="text-center">{{ x.type_name }}</td>
+                        <td class="text-center">{% if p.active %}Mở{% else %}Đóng{% endif %}</td>
+                        <td class="text-center">{{ p.created_date.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <div class="btn-group">
+<!--                                <button id="delete" class="btn btn-danger" onclick="delete_passbook({{ p.id }})">-->
+<!--                                    <i class="fas fa-trash-alt"></i>-->
+<!--                                </button>-->
+                                <a href="{{ url_for('passbook_add_or_update',  passbook_id=p.id) }}">
+                                    <button id="myBtn" class="btn btn-info">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </a>
+                            </div>
+                        </td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    {% endif %}
+    </tbody>
+    </table>
+</div>
+
+
+
+{% else %}
+<h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
+{% endif %}
+{% endblock content %}
