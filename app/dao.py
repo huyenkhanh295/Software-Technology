@@ -1,4 +1,4 @@
-from datetime import date
+import datetime
 
 from flask import request, make_response, jsonify
 
@@ -47,7 +47,7 @@ def add_passbook(customer_name, address, id_number, phone, money, passbook_type_
     p.address = address
     p.id_number = id_number
     p.phone = phone
-    p.created_date = date.today()
+    p.created_date = datetime.datetime.now()
     p.money = float(money)
     p.passbook_type_id = passbook_type_id
     if active:
@@ -101,12 +101,15 @@ def add_deposit_slip(passbook_id, customer_name, money, creator_id):
 
     d.passbook_id = int(passbook_id)
     d.customer_name = customer_name
-    d.created_date = date.today()
+    d.created_date = datetime.datetime.now()
     d.money = float(money)
     d.receipt_type_id = 1
     d.creator_id = int(creator_id)
 
-    db.session.add(d)
+    p = get_passbook_by_id(passbook_id=passbook_id)
+    p.money += float(money)
+
+    db.session.add(d, p)
     db.session.commit()
 
     return True
@@ -117,12 +120,15 @@ def add_withdrawal_slip(passbook_id, customer_name, money, creator_id):
 
     d.passbook_id = int(passbook_id)
     d.customer_name = customer_name
-    d.created_date = date.today()
+    d.created_date = datetime.datetime.now()
     d.money = float(money)
     d.receipt_type_id = 2
     d.creator_id = int(creator_id)
 
-    db.session.add(d)
+    p = get_passbook_by_id(passbook_id=passbook_id)
+    p.money -= float(money)
+
+    db.session.add(d, p)
     db.session.commit()
 
     return True

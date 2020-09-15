@@ -1,4 +1,4 @@
-from datetime import date
+import datetime
 
 from flask import render_template, redirect, request, url_for, flash, jsonify, make_response, send_from_directory
 from flask_login import login_user, login_required
@@ -84,7 +84,6 @@ def passbook_add_or_update():
             if dao.update_passbook(**data):
                 return redirect(url_for("passbook"))
         else:  # Them
-            data = dict(request.form.copy())
             if dao.add_passbook(**dict(request.form)):
                 return redirect(url_for("passbook"))
 
@@ -134,22 +133,57 @@ def withdrawal_slip_list():
 
 @app.route("/user/deposit_slip/add", methods=['GET', 'POST'])
 def make_a_deposit_slip():
+    err = ''
+    id = request.args.get("id")
+    p = dao.get_passbook_by_id(passbook_id=id)
+    if id:
+        # neu ma so hop le
+        if p:
+            if p.passbook_type_id != 1:
+                err = 'Loai tiet kiem khong hop le! Phai thuoc loai khong thoi han'
+        else:
+            err = 'Ma so khong hop le'
+
     if request.method == "POST":
-        data = dict(request.form.copy())
-        if dao.add_deposit_slip(**dict(request.form)):
+        if dao.add_deposit_slip(p.id, p.customer_name, **dict(request.form)):
+            err = 'Lap phieu gui tien thanh cong'
             return redirect(url_for("deposit_slip_list"))
 
-    return render_template("user/receipt_add.html", creator=dao.get_user())
+    return render_template("user/receipt_add.html", creator=dao.get_user(),
+                           err=err, passbook=p, deposit_slip=dao.get_deposit_slip())
 
 
 @app.route("/user/withdrawal_slip/add", methods=['GET', 'POST'])
 def make_a_withdrawal_slip():
-    if request.method == "POST":
-        data = dict(request.form.copy())
-        if dao.add_withdrawal_slip(**dict(request.form)):
-            return redirect(url_for("withdrawal_slip_list"))
+    err = ''
+    id = request.args.get("id")
+    p = dao.get_passbook_by_id(passbook_id=id)
+    if id:
+        # neu ma so hop le
+        if p:
+            if (datetime.datetime.now() - p.created_date).days >= 15:
+                # loai so ko ky han
+                if p.passbook_type_id == 1:
+                    withdrawal_money = request.args.get("money")
+                    if withdrawal_money:
+                        # kiem tra so du
+                        if float(withdrawal_money) <= p.money:
+                            if request.method == "POST":
+                                if dao.add_withdrawal_slip(**dict(request.form)):
+                                    err = 'Lap phieu rut tien thanh cong'
+                                    return redirect(url_for("withdrawal_slip_list"))
+                        else:
+                            err = 'So du khong du'
+                # loai so co ki han
+                else:
+                    pass
+            else:
+                err = 'Chua den ngay duoc phep rut tien (it nhat la 15 ngay)'
+        else:
+            err = 'Ma so khong hop le'
 
-    return render_template("user/receipt_add.html", creator=dao.get_user())
+    return render_template("user/receipt_add.html", creator=dao.get_user(),
+                           err=err, withdrawal_slip=dao.get_withdrawal_slip())
 
 
 @app.route("/login-user", methods=["post", "get"])
