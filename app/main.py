@@ -138,6 +138,54 @@ def delete_passbook(passbook_id):
     })
 
 
+@app.route("/user/rule")
+def rule():
+    rule = dao.get_all_passbook_type()
+    return render_template("user/rule.html",
+                           title="Quy Định", rule=rule)
+
+
+@app.route("/api/passbooktype/<int:passbooktype_id>", methods=["delete"])
+def delete_passbooktype(passbooktype_id):
+    if dao.delete_rule(passbooktype_id=passbooktype_id):
+        return jsonify({
+            "status": 200,
+            "message": "Successful",
+            "data": {"passbooktype_id": passbooktype_id}
+        })
+    return jsonify({
+        "status": 500,
+        "message": "Failed",
+    })
+
+
+@app.route("/user/rule/add", methods=['GET', 'POST'])
+def rule_add_or_update():
+    passbooktype_id = request.args.get("passbooktype_id")
+    err = ""
+    if request.method == "POST":
+
+        if passbooktype_id:  # Cap nhat
+            data = dict(request.form.copy())
+            data["passbooktype_id"] = passbooktype_id
+            if dao.update_rule(**data):
+                return redirect(url_for("rule"))
+        else:  # Them
+            data = dict(request.form.copy())
+            if dao.add_rule(**dict(request.form)):
+                return redirect(url_for("rule"))
+
+        err = "Something wrong!!! Please back later!!!"
+
+    rule = None
+    if passbooktype_id:
+        rule = dao.get_passbook_type_by_id(passbooktype_id=int(passbooktype_id))
+
+    return render_template("user/rule_add.html",
+                           rule=rule,
+                           err=err)
+
+
 @app.route("/login-user", methods=["post", "get"])
 def login_user_on():
     if current_user.is_authenticated:

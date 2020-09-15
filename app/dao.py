@@ -13,6 +13,14 @@ from app.models import *
 #     return make_response(jsonify({"passbook": passbooks}))
 
 
+def get_all_passbook_type():
+    return PassbookType.query.all()
+
+
+def get_passbook_type_by_id(passbooktype_id):
+    return PassbookType.query.get(passbooktype_id)
+
+
 def get_all_passbook():
     return Passbook.query.all()
 
@@ -23,6 +31,34 @@ def get_passbook_by_id(passbook_id):
 
 def get_passbook_type():
     return PassbookType.query.all()
+
+
+def add_rule(type_name, interest_rate):
+    p = PassbookType()
+    p.type_name = type_name
+    p.interest_rate = interest_rate
+
+    db.session.add(p)
+    db.session.commit()
+
+    return True
+
+
+def update_rule(passbooktype_id, type_name, interest_rate):
+    p = get_passbook_type_by_id(passbooktype_id=int(passbooktype_id))
+    p.type_name = type_name
+    p.interest_rate = interest_rate
+
+    db.session.add(p)
+    db.session.commit()
+    return True
+
+
+def delete_rule(passbooktype_id):
+    p = get_passbook_type_by_id(passbooktype_id)
+    db.session.delete(p)
+    db.session.commit()
+    return True
 
 
 def add_passbook(customer_name, address, id_number, phone, money, passbook_type_id, active):

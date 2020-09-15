@@ -1,0 +1,47 @@
+{% extends "user/layout.html" %}
+{% block content %}
+{% if current_user.is_authenticated %}
+<div>
+    <h2 class="text-center text-info">Các Loại Kỳ Hạn và Lãi Suất</h2>
+    {% if rule %}
+    <a href="{{ url_for('rule_add_or_update',  passbooktype_id=rule.id) }}"><h3 class="text-center text-info">Thêm Loại
+        Mới</h3></a>
+    {% endif %}
+    <table class="table table-bordered">
+        <thead>
+        <tr class="text-center">
+            <th class="align-middle">Mã Loại</th>
+            <th class="align-middle">Tên Loại</th>
+            <th class="align-middle">Lãi Suất Loại</th>
+            <th class="align-middle"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if rule %}
+        {% for p in rule %}
+        <tr id="rule{{ p.id }}">
+            <td class="text-center">{{ p.id }}</td>
+            <td>{{ p.type_name }}</td>
+            <td>{{ p.interest_rate }}</td>
+            <td>
+                <div class="btn-group">
+                    <button id="delete" class="btn btn-danger" onclick="delete_passbooktype({{ p.id }})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <a href="{{ url_for('rule_add_or_update',  passbooktype_id=p.id) }}">
+                        <button id="myBtn" class="btn btn-info">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </a>
+                </div>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
+{% endif %}
+{% endblock content %}
