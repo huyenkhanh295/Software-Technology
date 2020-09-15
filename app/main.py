@@ -1,4 +1,4 @@
-from datetime import date
+import datetime
 
 from flask import render_template, redirect, request, url_for, flash, jsonify, make_response, send_from_directory
 from flask_login import login_user, login_required
@@ -10,22 +10,22 @@ from app.models import *
 import hashlib
 
 
-@app.route('/static/<path:path>')
-def send_static(path):
-    return send_from_directory('static', path)
-
-
-SWAGGER_URL = '/swagger'
-API_URL = '/static/swagger.json'
-swaggerui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': 'Kiểm Thử Api'
-    }
-)
-app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
-
+# @app.route('/static/<path:path>')
+# def send_static(path):
+#     return send_from_directory('static', path)
+#
+#
+# SWAGGER_URL = '/swagger'
+# API_URL = '/static/swagger.json'
+# swaggerui_blueprint = get_swaggerui_blueprint(
+#     SWAGGER_URL,
+#     API_URL,
+#     config={
+#         'app_name': 'Kiểm Thử Api'
+#     }
+# )
+# app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+#
 
 # posts = [
 #     {
@@ -48,11 +48,6 @@ def index():
     return render_template("index.html")
 
 
-@app.route('/passbooks', methods=['GET'])
-def passbook_get_all():
-    return dao.get_all_passbook()
-
-
 @app.route('/api/passbooks/<int:passbook_id>', methods=['GET'])
 def passbook_get_by_id(passbook_id):
     p = dao.get_passbook_by_id(passbook_id=passbook_id)
@@ -66,38 +61,20 @@ def passbook_get_by_id(passbook_id):
 # show list of passbook on passbook.html
 @app.route("/user/passbook")
 def passbook():
+    kw = request.args.get("keyword")
+    id = request.args.get("id")
+
     passbook_type = dao.get_passbook_type()
-    passbooks = dao.get_all_passbook()
+    passbooks = dao.get_passbook(id=id, keyword=kw)
+
     return render_template("user/passbook.html",
                            title="Sổ Tiết Kiệm", passbooks=passbooks, passbook_type=passbook_type)
-
-
-@app.route("/user/passbook/charge", methods=['GET', 'POST'])
-def passbook_charge():
-    # if request.method == "POST":
-    #     pass_id = request.form.get("charge_id_cus")
-    #     pass_name = request.form.get("charge_name_cus")
-    #     pass_money = request.form.get("charge_money_cus")
-    #     update_passbook = (id = pass_id, customer_name = pass_name, )
-    #     dao.add_passbook()
-    return render_template("user/charge.html", title="Charge Pass")
 
 
 @app.route("/user/passbook/add", methods=['GET', 'POST'])
 def passbook_add_or_update():
     passbook_id = request.args.get("passbook_id")
     err = ""
-
-    # customer_name = request.form.get("customer_name")
-    # money = request.form.get("money")
-    # address = request.form.get("address")
-    # created_date = date.today()
-    # phone = request.form.get("phone")
-    # id_number = request.form.get("id_number")
-    # passbook_type_id = request.form.get("passbook_type")
-    #
-    # new_passbook = Passbook(customer_name=customer_name, money=money, address=address, created_date=created_date,
-    #                         phone=phone, id_number=id_number, passbook_type_id=passbook_type_id)
 
     if request.method == "POST":
 
@@ -107,7 +84,6 @@ def passbook_add_or_update():
             if dao.update_passbook(**data):
                 return redirect(url_for("passbook"))
         else:  # Them
-            data = dict(request.form.copy())
             if dao.add_passbook(**dict(request.form)):
                 return redirect(url_for("passbook"))
 
@@ -137,6 +113,78 @@ def delete_passbook(passbook_id):
         "message": "Failed"
     })
 
+
+
+# show list of deposit slip on receipt.html
+@app.route("/user/deposit_slip")
+def deposit_slip_list():
+    deposit_slip = dao.get_deposit_slip()
+
+    return render_template("user/receipt.html",
+                           title="Phiếu gửi tiền", deposit_slip=deposit_slip, creator=dao.get_user())
+
+
+@app.route("/user/withdrawal_slip")
+def withdrawal_slip_list():
+    withdrawal_slip = dao.get_withdrawal_slip()
+
+    return render_template("user/receipt.html",
+                           title="Phiếu rut tien", withdrawal_slip=withdrawal_slip, creator=dao.get_user())
+
+
+@app.route("/user/deposit_slip/add", methods=['GET', 'POST'])
+def make_a_deposit_slip():
+    err = ''
+    id = request.args.get("id")
+    p = dao.get_passbook_by_id(passbook_id=id)
+    if id:
+        # neu ma so hop le
+        if p:
+            if p.passbook_type_id != 1:
+                err = 'Loai tiet kiem khong hop le! Phai thuoc loai khong thoi han'
+        else:
+            err = 'Ma so khong hop le'
+
+    if request.method == "POST":
+        if dao.add_deposit_slip(p.id, p.customer_name, **dict(request.form)):
+            err = 'Lap phieu gui tien thanh cong'
+            return redirect(url_for("deposit_slip_list"))
+
+    return render_template("user/receipt_add.html", creator=dao.get_user(),
+                           err=err, passbook=p, deposit_slip=dao.get_deposit_slip())
+
+
+@app.route("/user/withdrawal_slip/add", methods=['GET', 'POST'])
+def make_a_withdrawal_slip():
+    err = ''
+    id = request.args.get("id")
+    p = dao.get_passbook_by_id(passbook_id=id)
+    if id:
+        # neu ma so hop le
+        if p:
+            if (datetime.datetime.now() - p.created_date).days >= 15:
+                # loai so ko ky han
+                if p.passbook_type_id == 1:
+                    withdrawal_money = request.args.get("money")
+                    if withdrawal_money:
+                        # kiem tra so du
+                        if float(withdrawal_money) <= p.money:
+                            if request.method == "POST":
+                                if dao.add_withdrawal_slip(**dict(request.form)):
+                                    err = 'Lap phieu rut tien thanh cong'
+                                    return redirect(url_for("withdrawal_slip_list"))
+                        else:
+                            err = 'So du khong du'
+                # loai so co ki han
+                else:
+                    pass
+            else:
+                err = 'Chua den ngay duoc phep rut tien (it nhat la 15 ngay)'
+        else:
+            err = 'Ma so khong hop le'
+
+    return render_template("user/receipt_add.html", creator=dao.get_user(),
+                           err=err, withdrawal_slip=dao.get_withdrawal_slip())
 
 @app.route("/user/rule")
 def rule():
@@ -221,12 +269,6 @@ def user():
 @app.route("/term")
 def term():
     return render_template("user/term.html")
-
-
-#
-# @app.route("/user")
-# def user():
-#     return render_template("user/index.html")
 
 
 @app.route("/login-admin", methods=["post", "get"])

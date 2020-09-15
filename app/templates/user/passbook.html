@@ -26,58 +26,93 @@
 
 <div>
     <h2 class="text-center text-info">DANH SÁCH SỔ TIẾT KIỆM</h2>
-    <table class="table table-bordered">
-        <thead>
-            <tr class="text-center">
-                <th class="align-middle">Mã sổ</th>
-                <th class="align-middle">Tên khách hàng</th>
-                <th class="align-middle">Địa chỉ</th>
-                <th class="align-middle">CMND</th>
-                <th class="align-middle">Số điện thoại</th>
-                <th class="align-middle">Số tiền</th>
-                <th class="align-middle">Loại tiết kiệm</th>
-                <th class="align-middle">Tình trạng</th>
-                <th class="align-middle">Ngày tạo</th>
-                <th></th>
-            </tr>
-        </thead>
-    <tbody>
-    {% if passbooks %}
-        {% for p in passbooks %}
-            <tr id="passbook{{ p.id }}">
-                {% for x in passbook_type %}
-                    {% if x.id == p.passbook_type_id %}
-                        <td class="text-center">{{ p.id }}</td>
-                        <td>{{ p.customer_name }}</td>
-                        <td>{{ p.address }}</td>
-                        <td>{{ p.id_number }}</td>
-                        <td>{{ p.phone }}</td>
-                        <td  class="text-right">{{ "{:,.0f}".format(p.money) }}đ</td>
-                        <td class="text-center">{{ x.type_name }}</td>
-                        <td class="text-center">{% if p.active %}Mở{% else %}Đóng{% endif %}</td>
-                        <td class="text-center">{{ p.created_date.strftime('%d/%m/%Y') }}</td>
-                        <td>
-                            <div class="btn-group">
-<!--                                <button id="delete" class="btn btn-danger" onclick="delete_passbook({{ p.id }})">-->
-<!--                                    <i class="fas fa-trash-alt"></i>-->
-<!--                                </button>-->
-                                <a href="{{ url_for('passbook_add_or_update',  passbook_id=p.id) }}">
-                                    <button id="myBtn" class="btn btn-info">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                </a>
-                            </div>
-                        </td>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        {% endfor %}
-    {% endif %}
-    </tbody>
+    <div class="card shadow">
+        <div class="card-header">
+            <div class="row d-flex align-items-baseline justify-content-end">
+                <form>
+                    <div class="form-row">
+                        <div class="col-4">
+                            <input class="form-control" type="search" name="id"
+                                placeholder="Nhập mã sổ">
+                        </div>
+                        <div class="col-5">
+                            <input class="form-control" type="search" name="keyword"
+                                placeholder="Nhập tên khách hàng">
+                        </div>
+                        <div class="col-3">
+                            <input class="btn btn-outline-info" type="submit" value="Tìm kiếm" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered m-0">
+            <thead>
+                <tr class="text-center">
+                    <th class="align-middle">Mã sổ</th>
+                    <th class="align-middle">Tên khách hàng</th>
+                    <th class="align-middle">Địa chỉ</th>
+                    <th class="align-middle">CMND</th>
+                    <th class="align-middle">Số điện thoại</th>
+                    <th class="align-middle">Số tiền</th>
+                    <th class="align-middle">Loại tiết kiệm</th>
+                    <th class="align-middle">Tình trạng</th>
+                    <th class="align-middle">Ngày tạo</th>
+                    <th></th>
+                </tr>
+            </thead>
+        <tbody>
+        {% if passbooks %}
+            {% for p in passbooks %}
+                <tr id="passbook{{ p.id }}">
+                    {% for x in passbook_type %}
+                        {% if x.id == p.passbook_type_id %}
+                            <td class="text-center">{{ p.id }}</td>
+                            <td>{{ p.customer_name }}</td>
+                            <td>{{ p.address }}</td>
+                            <td>{{ p.id_number }}</td>
+                            <td>{{ p.phone }}</td>
+                            <td  class="text-right">{{ "{:,.0f}".format(p.money) }}đ</td>
+                            <td class="text-center">{{ x.type_name }}</td>
+                            <td class="text-center">{% if p.active %}Mở{% else %}Đóng{% endif %}</td>
+                            <td class="text-center">{{ p.created_date.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <div class="btn-group">
+    <!--                                <button id="delete" class="btn btn-danger" onclick="delete_passbook({{ p.id }})">-->
+    <!--                                    <i class="fas fa-trash-alt"></i>-->
+    <!--                                </button>-->
+                                    <a href="{{ url_for('passbook_add_or_update',  passbook_id=p.id) }}">
+                                        <button id="myBtn" class="btn btn-info">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
     </table>
+            </div>
+        </div>
+        <div class="card-footer">
+            <ul class="pagination m-0 d-flex justify-content-end">
+                <li class="paginate_button page-item">
+                    <a href="javascript:void(0);" class="page-link">Trước</a>
+                </li>
+                <li class="paginate_button page-item active">
+                    <a href="#" class="page-link">1</a>
+                <li class="paginate_button page-item">
+                    <a href="javascript:void(0);" class="page-link">Sau</a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
-
-
 
 {% else %}
 <h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>

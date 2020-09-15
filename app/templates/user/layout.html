@@ -25,28 +25,29 @@
 <header class="site-header">
     <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
         <div class="container">
-            <a class="navbar-brand mr-4" href="/user">So Tiet Kiem</a>
+            <a class="navbar-brand" href="/user">So Tiet Kiem</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle"
                     aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarToggle">
                 <div class="navbar-nav mr-auto">
-                    <a class="nav-item nav-link" href="/user">Home</a>
+<!--                    <a class="nav-item nav-link" href="/user">Home</a>-->
                     {% if current_user.is_authenticated %}
-                    <a class="nav-item nav-link" href="{{url_for('passbook')}}">Danh sách sổ</a>
-                    <a class="nav-item nav-link" href="{{url_for('passbook_add_or_update')}}">Thêm sổ</a>
-                    <a class="nav-item nav-link" href="{{ url_for('passbook_charge')}}">Nạp tiền</a>
-                    <a class="nav-item nav-link" href="#">Rút tiền</a>
+
+                    <a class="nav-item nav-link" href="{{url_for('passbook')}}">Tra cứu sổ</a>
+                    <a class="nav-item nav-link" href="{{url_for('passbook_add_or_update')}}">Mở sổ</a>
+                    <a class="nav-item nav-link" href="{{ url_for('deposit_slip_list')}}">Nạp tiền</a>
+                    <a class="nav-item nav-link" href="{{ url_for('withdrawal_slip_list')}}">Rút tiền</a>
+                    <a class="nav-item nav-link" href="#">Báo cáo</a>
                     <a class="nav-item nav-link" href="{{ url_for('rule')}}">Quy Định</a>
+
                     {% else %}
                     {% endif %}
                 </div>
                 <!-- Navbar Right Side -->
                 <div class="navbar-nav">
                     {% if current_user.is_authenticated %}
-                    <input type="text" placeholder="Tìm kiếm...">
-                    <button type="button">Tìm</button>
                     <a class="nav-item nav-link" href="{{ url_for('logout') }}">Đăng xuất</a>
                     {% else %}
                     <a class="nav-item nav-link" href="{{ url_for('login_user_on') }}">Đăng nhập</a>
@@ -61,7 +62,6 @@
 
 <main role="main" class="container">
     <div class="row">
-        <div class="col-md-12">
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             {% for category, message in messages %}
@@ -71,8 +71,10 @@
             {% endfor %}
             {% endif %}
             {% endwith %}
-            {% block content %}{% endblock %}
-        </div>
+            <div class="col-12">
+                {% block content %}{% endblock %}
+            </div>
+
 <!--        <div class="col-md-3.5">-->
 <!--            <div class="content-section">-->
 <!--                <h3>Công cụ</h3>-->
@@ -89,7 +91,18 @@
 <!--        </div>-->
     </div>
 </main>
-
+<!-- Footer-->
+<footer class="footer py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-lg-left">Copyright © Your Website 2020</div>
+            <div class="col-lg-6 text-lg-right">
+                <a class="mr-3" href="#!">Privacy Policy</a>
+                <a href="#!">Terms of Use</a>
+            </div>
+        </div>
+    </div>
+</footer>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"

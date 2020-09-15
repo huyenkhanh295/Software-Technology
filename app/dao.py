@@ -1,8 +1,17 @@
-from datetime import date
+import datetime
 
 from flask import request, make_response, jsonify
 
 from app.models import *
+
+
+# Swagger
+# def add_passbook():
+#     data = request.get_json()
+#     passbook_schema = PassBookSchema()
+#     passbooks = passbook_schema.load(data)
+#     result = passbook_schema.dump(passbooks.create())
+#     return make_response(jsonify({"passbook": result}), 200)
 
 
 # Swagger
@@ -12,28 +21,31 @@ from app.models import *
 #     passbooks = passbook_schema.dump(get_passbook)
 #     return make_response(jsonify({"passbook": passbooks}))
 
-
-def get_all_passbook_type():
-    return PassbookType.query.all()
+# passbook
+def get_passbook_by_id(passbook_id):
+    return Passbook.query.get(passbook_id)
 
 
 def get_passbook_type_by_id(passbooktype_id):
     return PassbookType.query.get(passbooktype_id)
 
 
-def get_all_passbook():
-    return Passbook.query.all()
+def get_passbook(id=None, keyword=None):
+    p = Passbook.query
 
+    if keyword:
+        p = p.filter(Passbook.customer_name.contains(keyword))
+    if id:
+        p = p.filter(Passbook.id == id)
 
-def get_passbook_by_id(passbook_id):
-    return Passbook.query.get(passbook_id)
+    return p.all()
 
 
 def get_passbook_type():
     return PassbookType.query.all()
 
 
-def add_rule(type_name, interest_rate):
+  def add_rule(type_name, interest_rate):
     p = PassbookType()
     p.type_name = type_name
     p.interest_rate = interest_rate
@@ -59,19 +71,22 @@ def delete_rule(passbooktype_id):
     db.session.delete(p)
     db.session.commit()
     return True
+  
 
+def add_passbook(customer_name, address, id_number, phone, money, passbook_type_id, active=None):
 
-def add_passbook(customer_name, address, id_number, phone, money, passbook_type_id, active):
     p = Passbook()
     p.customer_name = customer_name
     p.address = address
     p.id_number = id_number
     p.phone = phone
-    p.created_date = date.today()
+    p.created_date = datetime.datetime.now()
     p.money = float(money)
     p.passbook_type_id = passbook_type_id
-    if active == '':
+    if active:
         active = 'True'
+    else:
+        active = ''
     p.active = bool(active)
 
     db.session.add(p)
@@ -80,15 +95,14 @@ def add_passbook(customer_name, address, id_number, phone, money, passbook_type_
     return True
 
 
-def update_passbook(passbook_id, customer_name, address, id_number, phone, money, passbook_type_id, active='False'):
+def update_passbook(passbook_id, customer_name, address, id_number, phone, passbook_type_id, active=None):
     p = get_passbook_by_id(passbook_id=int(passbook_id))
     p.customer_name = customer_name
     p.address = address
     p.id_number = id_number
     p.phone = phone
-    p.money = float(money)
     p.passbook_type_id = passbook_type_id
-    if active == '':
+    if active:
         active = 'True'
     else:
         active = ''
@@ -105,10 +119,54 @@ def delete_passbook(passbook_id):
     db.session.commit()
     return True
 
-# Swagger
-# def add_passbook():
-#     data = request.get_json()
-#     passbook_schema = PassBookSchema()
-#     passbooks = passbook_schema.load(data)
-#     result = passbook_schema.dump(passbooks.create())
-#     return make_response(jsonify({"passbook": result}), 200)
+
+# receipt: deposit slip
+def get_deposit_slip():
+    return Receipt.query.filter(Receipt.receipt_type_id == 1).all()
+
+
+def get_withdrawal_slip():
+    return Receipt.query.filter(Receipt.receipt_type_id == 2).all()
+
+
+def add_deposit_slip(passbook_id, customer_name, money, creator_id):
+    d = Receipt()
+
+    d.passbook_id = int(passbook_id)
+    d.customer_name = customer_name
+    d.created_date = datetime.datetime.now()
+    d.money = float(money)
+    d.receipt_type_id = 1
+    d.creator_id = int(creator_id)
+
+    p = get_passbook_by_id(passbook_id=passbook_id)
+    p.money += float(money)
+
+    db.session.add(d, p)
+    db.session.commit()
+
+    return True
+
+
+def add_withdrawal_slip(passbook_id, customer_name, money, creator_id):
+    d = Receipt()
+
+    d.passbook_id = int(passbook_id)
+    d.customer_name = customer_name
+    d.created_date = datetime.datetime.now()
+    d.money = float(money)
+    d.receipt_type_id = 2
+    d.creator_id = int(creator_id)
+
+    p = get_passbook_by_id(passbook_id=passbook_id)
+    p.money -= float(money)
+
+    db.session.add(d, p)
+    db.session.commit()
+
+    return True
+
+
+def get_user():
+    return User.query.all()
+
