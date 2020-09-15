@@ -10,6 +10,7 @@
         DANH SÁCH PHIẾU RÚT TIỀN
         {% endif %}
     </h2>
+
     <div class="card shadow">
         <div class="card-header">
             <div class="row d-flex align-items-baseline justify-content-end">
@@ -45,7 +46,7 @@
                                 <td class="text-center">{{ d.passbook_id }}</td>
                                 <td>{{ d.customer_name }}</td>
                                 <td  class="text-right">{{ "{:,.0f}".format(d.money) }}đ</td>
-                                <td class="text-center">{{ d.created_date.strftime('%d/%m/%Y') }}</td>
+                                <td class="text-center">{{ d.created_date.strftime('%d/%m/%Y %H:%M:%S') }}</td>
                                 {% for c in creator %}
                                     {% if d.creator_id == c.id %}
                                         <td class="text-center">{{ c.name }}</td>
@@ -61,7 +62,7 @@
                                 <td class="text-center">{{ w.passbook_id }}</td>
                                 <td>{{ w.customer_name }}</td>
                                 <td  class="text-right">{{ "{:,.0f}".format(w.money) }}đ</td>
-                                <td class="text-center">{{ w.created_date.strftime('%d/%m/%Y') }}</td>
+                                <td class="text-center">{{ w.created_date.strftime('%d/%m/%Y %H:%M:%S') }}</td>
                                 {% for c in creator %}
                                     {% if w.creator_id == c.id %}
                                         <td class="text-center">{{ c.name }}</td>

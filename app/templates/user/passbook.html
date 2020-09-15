@@ -77,7 +77,7 @@
                             <td  class="text-right">{{ "{:,.0f}".format(p.money) }}đ</td>
                             <td class="text-center">{{ x.type_name }}</td>
                             <td class="text-center">{% if p.active %}Mở{% else %}Đóng{% endif %}</td>
-                            <td class="text-center">{{ p.created_date.strftime('%d/%m/%Y') }}</td>
+                            <td class="text-center">{{ p.created_date.strftime('%d/%m/%Y %H:%M:%S') }}</td>
                             <td>
                                 <div class="btn-group">
     <!--                                <button id="delete" class="btn btn-danger" onclick="delete_passbook({{ p.id }})">-->
