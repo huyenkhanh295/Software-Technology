@@ -34,11 +34,14 @@
                 <div class="navbar-nav mr-auto">
 <!--                    <a class="nav-item nav-link" href="/user">Home</a>-->
                     {% if current_user.is_authenticated %}
+
                     <a class="nav-item nav-link" href="{{url_for('passbook')}}">Tra cứu sổ</a>
                     <a class="nav-item nav-link" href="{{url_for('passbook_add_or_update')}}">Mở sổ</a>
                     <a class="nav-item nav-link" href="{{ url_for('deposit_slip_list')}}">Nạp tiền</a>
                     <a class="nav-item nav-link" href="{{ url_for('withdrawal_slip_list')}}">Rút tiền</a>
                     <a class="nav-item nav-link" href="#">Báo cáo</a>
+                    <a class="nav-item nav-link" href="{{ url_for('rule')}}">Quy Định</a>
+
                     {% else %}
                     {% endif %}
                 </div>
