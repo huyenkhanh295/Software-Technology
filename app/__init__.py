@@ -14,5 +14,3 @@ admin = Admin(app=app, name="HỆ THỐNG QUẢN LÍ SỔ TIẾT KIỆM",
               base_template='/admin/layout-admin.html', template_mode="bootstrap3")
 
 login = LoginManager(app)
-
-
