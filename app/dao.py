@@ -1,27 +1,9 @@
 import csv
 import datetime
-import os
-
+from twilio.rest import Client
 from flask import request, make_response, jsonify
-
 from app.models import *
 
-
-# Swagger
-# def add_passbook():
-#     data = request.get_json()
-#     passbook_schema = PassBookSchema()
-#     passbooks = passbook_schema.load(data)
-#     result = passbook_schema.dump(passbooks.create())
-#     return make_response(jsonify({"passbook": result}), 200)
-
-
-# Swagger
-# def get_all_passbook():
-#     get_passbook = Passbook.query.all()
-#     passbook_schema = PassBookSchema(many=True)
-#     passbooks = passbook_schema.dump(get_passbook)
-#     return make_response(jsonify({"passbook": passbooks}))
 
 # passbook
 def get_passbook_by_id(passbook_id):
@@ -130,6 +112,7 @@ def get_deposit_slip():
     return Receipt.query.filter(Receipt.receipt_type_id == 1).all()
 
 
+# receipt: withdrawal slip
 def get_withdrawal_slip():
     return Receipt.query.filter(Receipt.receipt_type_id == 2).all()
 
@@ -146,10 +129,15 @@ def add_deposit_slip(passbook_id, customer_name, money, creator_id):
 
     p = get_passbook_by_id(passbook_id=passbook_id)
     p.money += float(money)
+    if not p.active:
+        p.active = True
 
     db.session.add(d, p)
     db.session.commit()
-
+    current_day = datetime.datetime.now().strftime('%H:%M %d/%m/%Y')
+    message = "MeoBank: {} TK {}: +{:,.0f}VND. So du {:,.0f}VND.".format(current_day, p.id, float(money), p.money)
+    phone = '+84' + p.phone[1:]
+    send_sms(message_body=message, message_to=phone)
     return True
 
 
@@ -164,13 +152,65 @@ def add_withdrawal_slip(passbook_id, customer_name, money, creator_id):
     d.creator_id = int(creator_id)
 
     p = get_passbook_by_id(passbook_id=passbook_id)
-    p.money -= float(money)
+    if p.passbook_type_id == 1:
+        p.money -= float(money)
+    else:
+        p.money = 0
+
+    if p.money == 0:
+        p.active = False
 
     db.session.add(d, p)
     db.session.commit()
-
+    current_day = datetime.datetime.now().strftime('%H:%M %d/%m/%Y')
+    message = "MeoBank: {} TK {}: -{:,.0f}VND. So du {:,.0f}VND.".format(current_day, p.id, float(money), p.money)
+    phone = '+84' + p.phone[1:]
+    send_sms(message_body=message, message_to=phone)
     return True
 
 
 def get_user():
     return User.query.all()
+
+
+def get_expiration_date(passbook):
+    expiration_date = None
+    if passbook:
+        passbook_type = get_passbook_type_by_id(passbooktype_id=passbook.passbook_type_id)
+        term = int(passbook_type.type_name.split(" ")[0])
+
+        month = term % 12
+        year = term // 12
+        year_created = passbook.created_date.year
+        month_created = passbook.created_date.month
+        day_created = passbook.created_date.day
+
+        if month == 0:
+            expiration_date = datetime.datetime(year + year_created, month_created, day_created).date()
+        else:
+            if month + month_created > 12:
+                expiration_date = datetime.datetime(year + year_created + 1, month_created + month - 12, day_created).date()
+            else:
+                expiration_date = datetime.datetime(year + year_created, month_created + month, day_created).date()
+    return expiration_date
+
+
+def calculate_interest_money(passbook, expiration_date):
+    interest_rate = get_passbook_type_by_id(passbooktype_id=passbook.passbook_type_id).interest_rate
+    day = (expiration_date - passbook.created_date.date()).days
+    interest_money = passbook.money * (interest_rate/100) * (day/365)
+    return interest_money
+
+
+def send_sms(message_body, message_to):
+    account_sid = 'AC13dd6685365bc934fde39f97881a3fd3'
+    auth_token = 'e89f617c1733ccdb2a538d0f63c5f7c9'
+    client = Client(account_sid, auth_token)
+
+    message = client.messages.create(
+        from_='+16029621577',
+        body=message_body,
+        to=message_to
+    )
+
+    print(message.sid)

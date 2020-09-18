@@ -10,18 +10,27 @@
         LẬP PHIẾU RÚT TIỀN
         {% endif %}
     </h3>
-    </br>
-        {% if err %}
-        <div class="alert alert-danger">
-            {{ err }}
-        </div>
-        {% endif %}
+    {% if err %}
+    <div class="alert alert-danger">
+        {{ err }}
+    </div>
+    {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
     <form class="form-group">
         <div class="form-group row">
             <label class="col-sm-4 col-form-label">Mã sổ</label>
             <div class="col-6">
+                {% if deposit_slip %}
                 <input type="search" class="form-control" name="id" required
-                value="{% if passbook %}{% if passbook.passbook_type_id == 1 %}{{passbook.id}}{% endif %}{% endif %}">
+                    value="{% if passbook %}{% if passbook.passbook_type_id == 1 %}{{passbook.id}}{% endif %}{% endif %}">
+                {% else %}
+                <input type="search" class="form-control" name="id" required
+                       value="{% if passbook %}{{passbook.id}}{% endif %}">
+                {% endif %}
             </div>
             <div class="col-2">
                     <button type="submit" class="btn btn-info">
@@ -35,14 +44,40 @@
         <div class="form-group row">
             <label class="col-sm-4 col-form-label">Tên khách hàng</label>
             <div class="col-sm-8">
-                <input type="text"class="form-control" name="customer_name" required disabled
+                {% if deposit_slip %}
+                <input type="text" class="form-control" name="customer_name" required disabled
                        value="{% if passbook %}{% if passbook.passbook_type_id == 1 %}{{passbook.customer_name}}{% endif %}{% endif %}">
+                {% else %}
+                <input type="text" class="form-control" name="customer_name" required disabled
+                       value="{% if passbook %}{{passbook.customer_name}}{% endif %}">
+                {% endif %}
             </div>
         </div>
+        {% if not deposit_slip %}
         <div class="form-group row">
-            <label class="col-sm-4 col-form-label">Số tiền</label>
+            <label class="col-sm-4 col-form-label">Số dư hiện có</label>
             <div class="col-sm-8">
-                <input type="number" min="100000" class="form-control" name="money" required >
+                <input type="number" class="form-control" value="{% if passbook %}{{passbook.money}}{% endif %}" disabled>
+            </div>
+        </div>
+        {% endif %}
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Số tiền rút</label>
+            <div class="col-sm-8">
+                {% if deposit_slip %}
+                    <input type="number" min="100000" class="form-control" name="money" required >
+                {% else %}
+                    {% if passbook %}
+                        {% if passbook.passbook_type_id != 1 %}
+                            <input type="number" min="100000" class="form-control" name="money"
+                                   value="{{passbook.money}}" required disabled >
+                        {% else %}
+                            <input type="number" min="100000" class="form-control" name="money" required >
+                        {% endif %}
+                    {% else %}
+                            <input type="number" min="100000" class="form-control" name="money" required >
+                    {% endif %}
+                {% endif %}
             </div>
         </div>
         <div class="form-group row">

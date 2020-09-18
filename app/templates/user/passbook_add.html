@@ -2,7 +2,11 @@
 {% block content %}
 {% if current_user.is_authenticated %}
 <div class="content-section">
-    </br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
     <h3 class="text-center ">
         {% if request.args.get('passbook_id') %} CẬP NHẬT {% else %}TẠO {% endif %}SỔ TIẾT KIỆM
     </h3>

@@ -1,3 +1,5 @@
+
+import datetime
 import csv
 from _datetime import datetime
 import os
@@ -7,47 +9,12 @@ from io import StringIO
 from flask import render_template, redirect, request, url_for, flash, jsonify, make_response, send_from_directory, \
     send_file
 from flask_login import login_user, login_required
-from flask_swagger_ui import get_swaggerui_blueprint
 from wtforms.ext import dateutil
-
 from app import dao, utils
 from app import app, login
 from app.forms import LogInForm
 from app.models import *
 import hashlib
-
-
-# @app.route('/static/<path:path>')
-# def send_static(path):
-#     return send_from_directory('static', path)
-#
-#
-# SWAGGER_URL = '/swagger'
-# API_URL = '/static/swagger.json'
-# swaggerui_blueprint = get_swaggerui_blueprint(
-#     SWAGGER_URL,
-#     API_URL,
-#     config={
-#         'app_name': 'Kiểm Thử Api'
-#     }
-# )
-# app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
-#
-
-# posts = [
-#     {
-#         'author': 'Cor',
-#         'title': 'blog',
-#         'content': 'first',
-#         'date_posted': 'april'
-#     },
-#     {
-#         'author': 'Corqwe',
-#         'title': 'blogasdas',
-#         'content': 'firdasdasst',
-#         'date_posted': 'aprdasdasdil'
-#     }
-# ]
 
 
 @app.route("/")
@@ -89,9 +56,11 @@ def passbook_add_or_update():
             data = dict(request.form.copy())
             data["passbook_id"] = passbook_id
             if dao.update_passbook(**data):
+                flash('Cập nhật thông tin thành công!', 'success')
                 return redirect(url_for("passbook"))
         else:  # Them
             if dao.add_passbook(**dict(request.form)):
+                flash('Mở sổ thành công!', 'success')
                 return redirect(url_for("passbook"))
 
         err = "Something wrong!!! Please back later!!!"
@@ -125,7 +94,6 @@ def delete_passbook(passbook_id):
 @app.route("/user/deposit_slip")
 def deposit_slip_list():
     deposit_slip = dao.get_deposit_slip()
-
     return render_template("user/receipt.html",
                            title="Phiếu gửi tiền", deposit_slip=deposit_slip, creator=dao.get_user())
 
@@ -140,21 +108,51 @@ def withdrawal_slip_list():
 
 @app.route("/user/deposit_slip/add", methods=['GET', 'POST'])
 def make_a_deposit_slip():
+    """
+    List of Test-case successfully:
+    Case 1: Click "Kiem tra so"
+
+    Case 2: Click "Lap phieu" but don't click the "Kiem tra so" button
+        - passbook_id is null
+        - passbook_id is not valid
+        - passbook_id valid but passbook_type_id is not valid
+        => err = Vui long nhap va kiem tra ma so
+        because this function can't get the passbook_id
+
+    Case 3: Click "Kiem tra so" then click "Lap phieu"
+
+    :return:
+        successfully: list of deposit slip
+        fail: err
+    """
     err = ''
     id = request.args.get("id")
     p = dao.get_passbook_by_id(passbook_id=id)
-    if id:
-        # neu ma so hop le
-        if p:
-            if p.passbook_type_id != 1:
-                err = 'Loai tiet kiem khong hop le! Phai thuoc loai khong thoi han'
-        else:
-            err = 'Ma so khong hop le'
+    if request.method == "GET":
+        if id:
+            # neu ma so hop le
+            if p:  # lay dc ma so
+                if p.passbook_type_id != 1:
+                    err = 'Loại tiết kiệm không hợp lệ! Sổ phải thuộc loại không thời hạn!'
+            else:
+                err = 'Mã sổ không hợp lệ'
 
     if request.method == "POST":
-        if dao.add_deposit_slip(p.id, p.customer_name, **dict(request.form)):
-            err = 'Lap phieu gui tien thanh cong'
-            return redirect(url_for("deposit_slip_list"))
+        if id:
+            # neu ma so hop le
+            if p:  # lay dc ma so
+                if p.passbook_type_id != 1:
+                    err = 'Loại tiết kiệm không hợp lệ! Sổ phải thuộc loại không thời hạn!'
+                else:
+                    if dao.add_deposit_slip(p.id, p.customer_name, **dict(request.form)):
+                        flash('Lập phiếu gửi tiền thành công!', 'success')
+                        return redirect(url_for("deposit_slip_list"))
+                    else:
+                        err = 'Lập phiếu không thành công! Vui lòng thử lại'
+            else:
+                err = 'Mã sổ không hợp lệ'
+        else:
+            err = 'Vui lòng nhập và kiểm tra mã sổ!'
 
     return render_template("user/receipt_add.html", creator=dao.get_user(),
                            err=err, passbook=p, deposit_slip=dao.get_deposit_slip())
@@ -165,37 +163,66 @@ def make_a_withdrawal_slip():
     err = ''
     id = request.args.get("id")
     p = dao.get_passbook_by_id(passbook_id=id)
-    if id:
-        # neu ma so hop le
-        if p:
-            if (datetime.datetime.now() - p.created_date).days >= 15:
-                # loai so ko ky han
-                if p.passbook_type_id == 1:
-                    withdrawal_money = request.args.get("money")
-                    if withdrawal_money:
-                        # kiem tra so du
-                        if float(withdrawal_money) <= p.money:
-                            if request.method == "POST":
-                                if dao.add_withdrawal_slip(**dict(request.form)):
-                                    err = 'Lap phieu rut tien thanh cong'
-                                    return redirect(url_for("withdrawal_slip_list"))
-                        else:
-                            err = 'So du khong du'
-                # loai so co ki han
+
+    if request.method == "GET":
+        if id:
+            # neu ma so hop le
+            if p:  # lay dc ma so
+                if p.active:
+                    if (datetime.datetime.now() - p.created_date).days >= 15:
+                        if p.passbook_type_id != 1:  # loai so co ky han
+                            expiration_date = dao.get_expiration_date(passbook=p)
+                            if not datetime.datetime.now().date() >= expiration_date:
+                                err = 'Chưa đến ngày đáo hạn! Vui lòng chờ đến ngày ' + expiration_date.strftime('%d/%m/%Y')
+                    else:
+                        err = 'Chưa đến ngày được phép rút tiền (ít nhất là 15 ngày)'
                 else:
-                    pass
+                    err = 'Sổ đã đóng! Không thể thực hiện thanh toán.'
             else:
-                err = 'Chua den ngay duoc phep rut tien (it nhat la 15 ngay)'
+                err = 'Mã sổ không hợp lệ'
+
+    if request.method == "POST":
+        if id:
+            if p:  # neu ma so hop le
+                if p.active:
+                    if (datetime.datetime.now() - p.created_date).days >= 15:
+                        if p.passbook_type_id == 1:  # loai so ko ky han
+                            withdrawal_money = request.form.get("money")
+                            # kiem tra so du
+                            if float(withdrawal_money) <= p.money:
+                                if dao.add_withdrawal_slip(p.id, p.customer_name, **dict(request.form)):
+                                    flash('Lập phiếu rút tiền thành công!', 'success')
+                                    return redirect(url_for("withdrawal_slip_list"))
+                            else:
+                                err = 'Số dư không đủ'
+
+                        else:  # loai so co ki han
+                            expiration_date = dao.get_expiration_date(passbook=p)
+                            if not datetime.datetime.now().date() >= expiration_date:
+                                err = 'Chưa đến ngày đáo hạn! Vui lòng chờ đến ngày ' + expiration_date.strftime(
+                                    '%d/%m/%Y')
+                            else:
+                                money = p.money + dao.calculate_interest_money(passbook=p, expiration_date=expiration_date)
+                                if dao.add_withdrawal_slip(p.id, p.customer_name, money, **dict(request.form)):
+                                    flash('Lập phiếu rút tiền thành công!', 'success')
+                                    return redirect(url_for("withdrawal_slip_list"))
+                    else:
+                        err = 'Chưa đến ngày được phép rút tiền (ít nhất là 15 ngày)'
+                else:
+                    err = 'Sổ đã đóng! Không thể thực hiện thanh toán.'
+            else:
+                err = 'Mã sổ không hợp lệ'
         else:
-            err = 'Ma so khong hop le'
+            err = 'Vui lòng nhập và kiểm tra mã sổ!'
 
     return render_template("user/receipt_add.html", creator=dao.get_user(),
-                           err=err, withdrawal_slip=dao.get_withdrawal_slip())
+                           err=err, passbook=p, withdrawal_slip=dao.get_withdrawal_slip())
+
 
 
 @app.route("/user/rule")
 def rule():
-    rule = dao.get_all_passbook_type()
+    rule = dao.get_passbook_type()
     return render_template("user/rule.html",
                            title="Quy Định", rule=rule)
 
