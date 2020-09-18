@@ -1,4 +1,6 @@
+import csv
 import datetime
+import os
 
 from flask import request, make_response, jsonify
 
@@ -26,6 +28,10 @@ def get_passbook_by_id(passbook_id):
     return Passbook.query.get(passbook_id)
 
 
+def get_passbook_type():
+    return PassbookType.query.all()
+
+
 def get_passbook_type_by_id(passbooktype_id):
     return PassbookType.query.get(passbooktype_id)
 
@@ -41,11 +47,11 @@ def get_passbook(id=None, keyword=None):
     return p.all()
 
 
-def get_passbook_type():
+def get_all_passbook_type():
     return PassbookType.query.all()
 
 
-  def add_rule(type_name, interest_rate):
+def add_rule(type_name, interest_rate):
     p = PassbookType()
     p.type_name = type_name
     p.interest_rate = interest_rate
@@ -71,10 +77,9 @@ def delete_rule(passbooktype_id):
     db.session.delete(p)
     db.session.commit()
     return True
-  
+
 
 def add_passbook(customer_name, address, id_number, phone, money, passbook_type_id, active=None):
-
     p = Passbook()
     p.customer_name = customer_name
     p.address = address
@@ -169,4 +174,3 @@ def add_withdrawal_slip(passbook_id, customer_name, money, creator_id):
 
 def get_user():
     return User.query.all()
-

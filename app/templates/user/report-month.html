@@ -1,0 +1,99 @@
+{% extends "user/layout.html" %}
+{% block content %}
+{% if current_user.is_authenticated %}
+<h1>Báo Cáo Doanh Số Hoạt Động Tháng</h1>
+<form class="form-group row" method="POST">
+    <div class="col-md-6">
+        <div class="col-md-6"><p>Nhập tháng</p></div>
+        <div class="col-md-6"><input type="number" class="form-control" name="report_month" required></div>
+    </div>
+    <div class="col-md-6">
+        <div class="col-md-6"><p>Nhập năm</p></div>
+        <div class="col-md-6"><input type="number" class="form-control" name="report_year" required></div>
+    </div>
+    <div class="col-md-12">
+        <div class="col-md-6"><input class="btn btn-primary" type="submit" value="Xem kết quả"/></div>
+    </div>
+    <!--    <div class="col-md-6"><input type="datetime-local" class="form-control" name="report_date_to" required></div>-->
+
+</form>
+{% if datas %}
+<h2>Danh Sách sổ tiết kiệm</h2>
+{% for x in datas %}
+<div class="card-body">
+    <div class="table-responsive">
+        <table class="table table-bordered m-0">
+            <thead>
+            <tr class="text-center">
+                <th class="align-middle">Mã sổ</th>
+                <th class="align-middle">Tên khách hàng</th>
+                <th class="align-middle">Địa chỉ</th>
+                <th class="align-middle">CMND</th>
+                <th class="align-middle">Số điện thoại</th>
+                <th class="align-middle">Số tiền</th>
+                <th class="align-middle">Loại tiết kiệm</th>
+                <th class="align-middle">Tình trạng</th>
+                <th class="align-middle">Ngày tạo</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th class="align-middle">{{ x.id }}</th>
+                <td class="align-middle">{{ x.customer_name }}</td>
+                <td class="align-middle">{{ x.address }}</td>
+                <td class="align-middle">{{ x.created_date }}</td>
+                <td class="align-middle">{{ x.money }}</td>
+                <td class="align-middle">{{ x.phone }}</td>
+                <td class="align-middle">{{ x.id_number }}</td>
+                <td class="align-middle">{{ x.passbook_type_id }}</td>
+                <td class="align-middle">{{ x.active }}</td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endfor %}
+{% endif %}
+{% if data2 %}
+<h2>Danh Sách Hóa Đơn</h2>
+{% for y in data2 %}
+<div class="card-body">
+    <div class="table-responsive">
+        <table class="table table-bordered m-0">
+            <thead>
+            <tr class="text-center">
+                <th class="align-middle">Mã hóa đơn</th>
+                <th class="align-middle">Mã sổ</th>
+                <th class="align-middle">Tên Khách Hàng</th>
+                <th class="align-middle">Ngày Tạo</th>
+                <th class="align-middle">Số tiền</th>
+                <th class="align-middle">Loại hóa đơn</th>
+                <th class="align-middle">Người tạo</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th class="align-middle">{{ y.id }}</th>
+                <td class="align-middle">{{ y.passbook_id }}</td>
+                <td class="align-middle">{{ y.customer_name }}</td>
+                <td class="align-middle">{{ y.created_date }}</td>
+                <td class="align-middle">{{ y.money }}</td>
+                <td class="align-middle">{{ y.receipt_type_id }}</td>
+                <td class="align-middle">{{ y.creator_id }}</td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endfor %}
+{% endif %}
+{% else %}
+<h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
+{% endif %}
+{% endblock content %}

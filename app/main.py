@@ -1,9 +1,16 @@
-import datetime
+import csv
+from _datetime import datetime
+import os
+import pyexcel as pe
+from io import StringIO
 
-from flask import render_template, redirect, request, url_for, flash, jsonify, make_response, send_from_directory
+from flask import render_template, redirect, request, url_for, flash, jsonify, make_response, send_from_directory, \
+    send_file
 from flask_login import login_user, login_required
 from flask_swagger_ui import get_swaggerui_blueprint
-from app import dao
+from wtforms.ext import dateutil
+
+from app import dao, utils
 from app import app, login
 from app.forms import LogInForm
 from app.models import *
@@ -114,7 +121,6 @@ def delete_passbook(passbook_id):
     })
 
 
-
 # show list of deposit slip on receipt.html
 @app.route("/user/deposit_slip")
 def deposit_slip_list():
@@ -186,6 +192,7 @@ def make_a_withdrawal_slip():
     return render_template("user/receipt_add.html", creator=dao.get_user(),
                            err=err, withdrawal_slip=dao.get_withdrawal_slip())
 
+
 @app.route("/user/rule")
 def rule():
     rule = dao.get_all_passbook_type()
@@ -255,6 +262,11 @@ def login_user_on():
     return render_template("user/login.html", title='Login', form=form)
 
 
+@app.route("/user/report")
+def report():
+    return render_template("user/report.html", title='Báo cáo')
+
+
 @app.route("/logout")
 def logout():
     logout_user()
@@ -269,6 +281,65 @@ def user():
 @app.route("/term")
 def term():
     return render_template("user/term.html")
+
+
+@app.route("/user/report/month", methods=["post", "get"])
+def report_month():
+    render_template("user/report-month.html")
+    if request.method == "POST":
+        month = request.form.get("report_month")
+        year = request.form.get("report_year")
+        start = year + "-0" + month + "-" + "01" + " 00:00:00"
+        end = year + "-0" + month + "-" + "29" + " 00:00:00"
+        flash(f'kết thúc {end}')
+        flash(f'bắt đầu {start}')
+        recedata = Receipt.query.filter(Receipt.created_date <= end).filter(Receipt.created_date >= start)
+        data = Passbook.query.filter(Passbook.created_date <= end).filter(Passbook.created_date >= start)
+        print(data)
+        print(recedata)
+        return render_template("user/report-month.html", title='Báo cáo theo tháng', datas=data, data2=recedata)
+    else:
+        return render_template("user/report-month.html", title='Báo cáo theo tháng')
+
+
+@app.route("/user/report/day", methods=["post", "get"])
+def report_day():
+    if request.method == "POST":
+        date = request.form.get("report_date_from")
+        start = date + " 00:00:00"
+        end = date + " 23:10:10"
+        # end = request.form.get("report_date_to")
+        flash(f'kết thúc {end}')
+        flash(f'bắt đầu {start}')
+        recedata = Receipt.query.filter(Receipt.created_date <= end).filter(Receipt.created_date >= start)
+        data = Passbook.query.filter(Passbook.created_date <= end).filter(Passbook.created_date >= start)
+        # db.session.query(Passbook).filter_by().first()
+        print(data)
+        print(recedata)
+        # with open('dump.csv', 'wb') as f:
+        #     out = csv.writer(f)
+        #     # out.writerow(['id', 'customer_name', 'address', 'created_date', 'money', 'phone','id_number', W'passbook_type_id', 'active'])
+        #     for item in data:
+        #         out.writerow([item.id, item.customer_name, item.address, item.created_date, item.money, item.phone,item.id_number, item.passbook_type_id, item.active])
+        # if data:
+        #     result = []
+        #     for what in data:
+        #         all = what.id + ',' + what.customer_name + ',' + what.address + ',' + what.created_date
+        #         + ',' + what.money + ',' + what.phone + ',' + what.id_number + ','
+        #         + what.passbook_type_id + ',' + what.active
+        #         result.append([all])
+        #     si = StringIO()
+        #     cw = csv.writer(si)
+        #     cw.writerows(result)
+        #     output = make_response(si.getvalue())
+        #     output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+        #     output.headers["Content-type"] = "text/csv"
+        #     return output
+        # if data:
+        #     return send_file(utils.export_csv(ok))
+        return render_template("user/report-day.html", title='Báo cáo theo ngày', datas=data, data2=recedata)
+    else:
+        return render_template("user/report-day.html", title='Báo cáo theo ngày')
 
 
 @app.route("/login-admin", methods=["post", "get"])

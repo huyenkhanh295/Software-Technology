@@ -1,0 +1,12 @@
+{% extends "user/layout.html" %}
+{% block content %}
+{% if current_user.is_authenticated %}
+<h1>Các thể loại báo cáo</h1>
+
+<p class="article-content"><a href="{{ url_for('report_day')}}"><p>Báo cáo theo ngày</p></a></p>
+<p class="article-content"><a href="{{ url_for('report_month')}}"><p>Báo cáo theo tháng</p></a></p>
+
+{% else %}
+<h1>Vui lòng đăng nhập để sử dụng hệ thống</h1>
+{% endif %}
+{% endblock content %}
