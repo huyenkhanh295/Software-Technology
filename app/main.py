@@ -164,7 +164,7 @@ def make_a_withdrawal_slip():
                     if (datetime.datetime.now() - p.created_date).days >= 15:
                         if p.passbook_type_id != 1:  # loai so co ky han
                             expiration_date = dao.get_expiration_date(passbook=p)
-                            if not datetime.datetime.now() >= expiration_date:
+                            if not datetime.datetime.now().date() >= expiration_date:
                                 err = 'Chưa đến ngày đáo hạn! Vui lòng chờ đến ngày ' + expiration_date.strftime('%d/%m/%Y')
                     else:
                         err = 'Chưa đến ngày được phép rút tiền (ít nhất là 15 ngày)'
@@ -190,12 +190,12 @@ def make_a_withdrawal_slip():
 
                         else:  # loai so co ki han
                             expiration_date = dao.get_expiration_date(passbook=p)
-                            x = datetime.datetime.now()
-                            if not datetime.datetime.now() >= expiration_date:
+                            if not datetime.datetime.now().date() >= expiration_date:
                                 err = 'Chưa đến ngày đáo hạn! Vui lòng chờ đến ngày ' + expiration_date.strftime(
                                     '%d/%m/%Y')
                             else:
-                                if dao.add_withdrawal_slip(p.id, p.customer_name, p.money, **dict(request.form)):
+                                money = p.money + dao.calculate_interest_money(passbook=p, expiration_date=expiration_date)
+                                if dao.add_withdrawal_slip(p.id, p.customer_name, money, **dict(request.form)):
                                     flash('Lập phiếu rút tiền thành công!', 'success')
                                     return redirect(url_for("withdrawal_slip_list"))
                     else:

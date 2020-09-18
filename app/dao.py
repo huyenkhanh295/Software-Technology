@@ -1,5 +1,4 @@
 import datetime
-from calendar import monthrange
 from twilio.rest import Client
 from app.models import *
 
@@ -147,7 +146,10 @@ def add_withdrawal_slip(passbook_id, customer_name, money, creator_id):
     d.creator_id = int(creator_id)
 
     p = get_passbook_by_id(passbook_id=passbook_id)
-    p.money -= float(money)
+    if p.passbook_type_id == 1:
+        p.money -= float(money)
+    else:
+        p.money = 0
 
     if p.money == 0:
         p.active = False
@@ -171,20 +173,32 @@ def get_expiration_date(passbook):
         passbook_type = get_passbook_type_by_id(passbooktype_id=passbook.passbook_type_id)
         term = int(passbook_type.type_name.split(" ")[0])
 
-        month = passbook.created_date.month
-        day = 0
-        year = passbook.created_date.year
-        if month + term <= 12:
-            for i in range(month + 1, month + term + 1):
-                day += monthrange(year, i)[1]
+        month = term % 12
+        year = term // 12
+        year_created = passbook.created_date.year
+        month_created = passbook.created_date.month
+        day_created = passbook.created_date.day
 
-        expiration_date = passbook.created_date + datetime.timedelta(days=day)
+        if month == 0:
+            expiration_date = datetime.datetime(year + year_created, month_created, day_created).date()
+        else:
+            if month + month_created > 12:
+                expiration_date = datetime.datetime(year + year_created + 1, month_created + month - 12, day_created).date()
+            else:
+                expiration_date = datetime.datetime(year + year_created, month_created + month, day_created).date()
     return expiration_date
+
+
+def calculate_interest_money(passbook, expiration_date):
+    interest_rate = get_passbook_type_by_id(passbooktype_id=passbook.passbook_type_id).interest_rate
+    day = (expiration_date - passbook.created_date.date()).days
+    interest_money = passbook.money * (interest_rate/100) * (day/365)
+    return interest_money
 
 
 def send_sms(message_body, message_to):
     account_sid = 'AC13dd6685365bc934fde39f97881a3fd3'
-    auth_token = '42c23dcbe74889f30f8880b5afe0ecc6'
+    auth_token = 'e89f617c1733ccdb2a538d0f63c5f7c9'
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
