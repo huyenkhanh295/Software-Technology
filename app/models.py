@@ -1,7 +1,7 @@
 import hashlib
 from dataclasses import dataclass
 
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, event, DateTime, Float
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, event, DateTime, Float, inspect
 from sqlalchemy.orm import relationship
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
@@ -63,6 +63,9 @@ class Passbook(db.Model):
     def __str__(self):
         return str(self.id)
 
+    def toDict(self):
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+
 
 # class PassBookSchema(ModelSchema):
 #     class Meta(ModelSchema.Meta):
@@ -118,6 +121,14 @@ class LogoutView(BaseView):
 
     def is_accessible(self):
         return current_user.is_authenticated
+
+
+# @event.listens_for(Passbook.created_date, 'set', retval=True)
+# def create_daytime_to_day(target, value, oldvalue, initiator):
+#     if value != oldvalue:
+#         value = value.strftime('%m/%d/%Y')
+#         return value
+#     return value
 
 
 @event.listens_for(User.password, 'set', retval=True)

@@ -39,7 +39,7 @@
                     <a class="nav-item nav-link" href="{{url_for('passbook_add_or_update')}}">Mở sổ</a>
                     <a class="nav-item nav-link" href="{{ url_for('deposit_slip_list')}}">Nạp tiền</a>
                     <a class="nav-item nav-link" href="{{ url_for('withdrawal_slip_list')}}">Rút tiền</a>
-                    <a class="nav-item nav-link" href="#">Báo cáo</a>
+                    <a class="nav-item nav-link" href="{{ url_for('report')}}">Lập Báo Cáo</a>
                     <a class="nav-item nav-link" href="{{ url_for('rule')}}">Quy Định</a>
 
                     {% else %}

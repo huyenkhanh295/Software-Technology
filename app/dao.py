@@ -1,11 +1,17 @@
+import csv
 import datetime
 from twilio.rest import Client
+from flask import request, make_response, jsonify
 from app.models import *
 
 
 # passbook
 def get_passbook_by_id(passbook_id):
     return Passbook.query.get(passbook_id)
+
+
+def get_passbook_type():
+    return PassbookType.query.all()
 
 
 def get_passbook_type_by_id(passbooktype_id):
@@ -23,7 +29,7 @@ def get_passbook(id=None, keyword=None):
     return p.all()
 
 
-def get_passbook_type():
+def get_all_passbook_type():
     return PassbookType.query.all()
 
 
